@@ -16,7 +16,7 @@
 
 > 本次重点：**打通数据同步闭环** + 多项安全加固。
 
-- **🔄 打通同步闭环（核心）**：页面打开时首选从 GitHub Pages 读取 `scripts/sync_tencent_docs.py` 自动同步的聚合数据 `jobs.json`（1355+ 条实时校招信息）。加载失败时依次回退到 localStorage 和腾讯文档在线兜底。
+- **🔄 打通同步闭环（核心）**：页面打开时读取 GitHub Pages 上由 `scripts/sync_tencent_docs.py` 自动同步的聚合数据 `jobs.json`。加载失败时仅回退到 localStorage 缓存，不再由浏览器直接解析腾讯文档。
 - **🛡 安全加固**：
   - 外链渲染增加 `^https?://` 协议校验 + `rel="noopener noreferrer"`，杜绝 `javascript:` 伪协议 XSS 与 tabnabbing
   - CSV 导出字段转义 + UTF-8 BOM 头，修复含逗号数据错位、Excel 中文乱码
@@ -171,7 +171,7 @@ Apache 2.0 License
 - 版本号升至 v2.4.1
 
 ### v2.4.0
-- **打通同步闭环（核心功能）**：`index.html` 初始化时首选 `fetch('jobs.json')` 从 GitHub Pages 读取 `scripts/sync_tencent_docs.py` 自动同步的聚合数据（结构 `{updated,count,jobs:[...]}`，每条含 `s:"校招信息聚合平台"` 标记）。加载失败时依次回退到 localStorage 和腾讯文档在线兜底。
+- **打通同步闭环（核心功能）**：`index.html` 初始化时通过 `fetch('jobs.json')` 读取 `scripts/sync_tencent_docs.py` 自动同步的聚合数据（结构 `{updated,count,jobs:[...]}`，每条含 `s:"校招信息聚合平台"` 标记）。加载失败时仅回退到 localStorage 缓存。
 - **安全加固**：① 外链渲染加 `^https?://` 校验 + `rel="noopener noreferrer"`，修复 `javascript:` 伪协议 XSS / tabnabbing；② CSV 导出新增字段转义 `csvCell()` + UTF-8 BOM，修复 Excel 中文乱码与含逗号字段错位；③ HTML 转义补全单引号 `&#39;`
 - **代理安全**：`proxy.js` 新增 Origin 白名单（`localhost`/`127.0.0.1`/`file://` 等）+ 403 拦截，防止本地代理被外部站点滥用
 - 版本号升至 v2.4.0
@@ -184,7 +184,6 @@ Apache 2.0 License
 - 新增节点保留地点信息，支持地点/关键词定向爬取（v2.2.0 功能）
 - 版本号升至 v2.3.0
 - ⚠️ **注意**：内置的免费 Firecrawl Key 额度有限（每月 500 次），多人共用或多次测试后可能返回 429。遇到「已抓 N 站 0 条」时，可在顶栏「Firecrawl Key」输入框填自己的 Key 覆盖（仅存本地浏览器），或跑本地 CLI 备用（BrowserAct/OpenCLI）
-- **最终兜底：公开校招数据聚合表**：当 Firecrawl/AnySearch/本地 CLI 全部失败时，自动从**公开的校招信息聚合表**（`docs.qq.com` 公开智能表格，27 届实习提前批信息汇总，实时更新）拉取数据填表，一次可加载 **1700+ 条**实时校招信息（公司/岗位/地点/截止/投递链接/行业标签齐全）。读取走本地代理（`node tools/proxy.js`）转发 + base64/zlib 解压 + 智能表格数据解析；本地代理不可用时自动退回公共 CORS 代理。来源：https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ
 
 ### v2.2.0
 - **地点/关键词定向爬取**：搜索框填地点或关键词（如「北京」「Java」），一键爬虫抓取结果**只保留匹配项**（公司/职位/地点/福利任一命中即可），留空则抓该行业全部；配合行业定向可实现「行业 + 城市」双维精准

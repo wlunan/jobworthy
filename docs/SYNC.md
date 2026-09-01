@@ -106,4 +106,4 @@ python scripts/sync_tencent_docs.py --push
 - **接口偶发 401/超时**：腾讯文档接口偶有限流。脚本带分页重试与 `added==0` 提前停止；若某次失败，重试或等几分钟再跑。
 - **数据异常**：若某次同步条数骤降/骤增，先 `--dry` 预览确认，不轻易 `--push`。
 - **文档结构变更**：若腾讯文档改了列名（如「公司名称」改名），需同步更新 `parse_sheet`/`to_row` 中的中文字段名。
-- **兜底（页面端）**：`index.html` 内置 `tdFallback()` 仍保留——若 GitHub Pages 的 jobs.json 缺失，页面可临时直连腾讯文档兜底（依赖本地代理 `node tools/proxy.js`）。
+- **兜底（页面端）**：若 GitHub Pages 的 `jobs.json` 缺失，页面仅使用已有的浏览器 localStorage 缓存；腾讯文档只由同步脚本解析。
