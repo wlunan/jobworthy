@@ -16,7 +16,7 @@
 
 > 本次重点：**打通数据同步闭环** + 多项安全加固。
 
-- **🔄 打通同步闭环（核心）**：页面打开时首选从 GitHub Pages 读取 `scripts/sync_tencent_docs.py` 自动同步的聚合数据 `jobs.json`（1355+ 条实时校招信息）。远程加载成功即作为主数据源直接渲染，真正让「每周五同步 → 页面自动更新」形成闭环；远程失败时分级回退：localStorage → 内置 `TD_SNAPSHOT` 快照 →（无聚合数据时）本地代理 `tdFallback` 兜底，离线也能看基础数据
+- **🔄 打通同步闭环（核心）**：页面打开时首选从 GitHub Pages 读取 `scripts/sync_tencent_docs.py` 自动同步的聚合数据 `jobs.json`（1355+ 条实时校招信息）。加载失败时依次回退到 localStorage 和腾讯文档在线兜底。
 - **🛡 安全加固**：
   - 外链渲染增加 `^https?://` 协议校验 + `rel="noopener noreferrer"`，杜绝 `javascript:` 伪协议 XSS 与 tabnabbing
   - CSV 导出字段转义 + UTF-8 BOM 头，修复含逗号数据错位、Excel 中文乱码
@@ -158,7 +158,7 @@ Apache 2.0 License
 - 版本号升至 v2.4.1
 
 ### v2.4.0
-- **打通同步闭环（核心功能）**：`index.html` 初始化时首选 `fetch('jobs.json')` 从 GitHub Pages 读取 `scripts/sync_tencent_docs.py` 自动同步的聚合数据（结构 `{updated,count,jobs:[...]}`，每条含 `s:"校招信息聚合平台"` 标记）；远程数据加载成功后直接作为主数据源渲染，使「每周五同步 → 页面自动更新」真正生效。远程失败时分级回退：localStorage → 内置 `TD_SNAPSHOT` 快照 →（无聚合数据时）本地代理 `tdFallback` 兜底，离线/首次打开也能看到数据
+- **打通同步闭环（核心功能）**：`index.html` 初始化时首选 `fetch('jobs.json')` 从 GitHub Pages 读取 `scripts/sync_tencent_docs.py` 自动同步的聚合数据（结构 `{updated,count,jobs:[...]}`，每条含 `s:"校招信息聚合平台"` 标记）。加载失败时依次回退到 localStorage 和腾讯文档在线兜底。
 - **安全加固**：① 外链渲染加 `^https?://` 校验 + `rel="noopener noreferrer"`，修复 `javascript:` 伪协议 XSS / tabnabbing；② CSV 导出新增字段转义 `csvCell()` + UTF-8 BOM，修复 Excel 中文乱码与含逗号字段错位；③ HTML 转义补全单引号 `&#39;`
 - **代理安全**：`proxy.js` 新增 Origin 白名单（`localhost`/`127.0.0.1`/`file://` 等）+ 403 拦截，防止本地代理被外部站点滥用
 - 版本号升至 v2.4.0

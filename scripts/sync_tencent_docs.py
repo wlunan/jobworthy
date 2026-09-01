@@ -220,15 +220,18 @@ def to_row(r):
     loc = extract_location(loc_text) or extract_location(r.get("工作地点") or "")
     url = (r.get("投递链接or推文") or r.get("投递链接") or "").strip()
     clean_url = url.split()[0] if (url and re.match(r"^https?://", url)) else ""
+    announcement = (r.get("官方公告") or "").strip()
+    clean_announcement = announcement.split()[0] if (announcement and re.match(r"^https?://", announcement)) else ""
+    updated_at = (r.get("更新日期") or "").strip()
     ind = map_industry(r.get("行业") or "")
     batch = (r.get("批次") or "").strip()
     title = p if p else (batch or "校招信息")
     return {
         "c": c, "p": title, "l": loc, "e": "",
-        "w": ("批次:" + batch) if batch else "",
+        "w": batch,
         "d": deadline, "s": "校招信息聚合平台",
         "t": ("互联网" if ind == "互联网科技" else "其他"),
-        "ind": ind, "u": clean_url,
+        "ind": ind, "ut": updated_at, "a": clean_announcement, "u": clean_url,
     }
 
 # ============ 主流程 ============
