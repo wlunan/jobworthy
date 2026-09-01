@@ -16,17 +16,17 @@
 
 > 本次重点：**打通数据同步闭环** + 多项安全加固。
 
-- **🔄 打通同步闭环（核心）**：页面打开时首选从 GitHub Pages 读取每周五 `sync_tencent_docs.py` 自动同步的聚合数据 `jobs.json`（1355+ 条实时校招信息）。远程加载成功即作为主数据源直接渲染，真正让「每周五同步 → 页面自动更新」形成闭环；远程失败时分级回退：localStorage → 内置 `TD_SNAPSHOT` 快照 →（无聚合数据时）本地代理 `tdFallback` 兜底，离线也能看基础数据
+- **🔄 打通同步闭环（核心）**：页面打开时首选从 GitHub Pages 读取 `scripts/sync_tencent_docs.py` 自动同步的聚合数据 `jobs.json`（1355+ 条实时校招信息）。远程加载成功即作为主数据源直接渲染，真正让「每周五同步 → 页面自动更新」形成闭环；远程失败时分级回退：localStorage → 内置 `TD_SNAPSHOT` 快照 →（无聚合数据时）本地代理 `tdFallback` 兜底，离线也能看基础数据
 - **🛡 安全加固**：
   - 外链渲染增加 `^https?://` 协议校验 + `rel="noopener noreferrer"`，杜绝 `javascript:` 伪协议 XSS 与 tabnabbing
   - CSV 导出字段转义 + UTF-8 BOM 头，修复含逗号数据错位、Excel 中文乱码
   - HTML 转义补全单引号（`&#39;`）
-  - 本地代理 `proxy.js` 新增 Origin 白名单 + 403 拦截，防止被外部网站滥用
+  - 本地代理 `tools/proxy.js` 新增 Origin 白名单 + 403 拦截，防止被外部网站滥用
 - 版本号升至 **v2.4.0**
 
 ## 🎬 v2.3.0 核心亮点
 
-> [观看 5 秒宣传视频](promo.mp4)（中文字幕 · 中文配音 · 1.1MB）
+> [观看 5 秒宣传视频](assets/promo.mp4)（中文字幕 · 中文配音 · 1.1MB）
 
 - **856 家校招节点**：126 家企业官网招聘页 + 16 个企业官方公众号校招推文 + **714 家新增公开校招节点**（覆盖 13 大行业，已清洗无效链接）+ 3 家综合招聘网站
 - **四层爬虫工具策略**：主选 **Firecrawl**（浏览器直连）+ 第一备用 **AnySearch**（云端免费、匿名可用、无需本地 CLI，经 CORS 代理）+ 备用② **BrowserAct**（本地 CLI，专破反爬/验证码）+ 备用③ **OpenCLI**（本地 CLI + Chrome 插件，覆盖 51job 全量）
@@ -48,7 +48,7 @@
 ### 方式一：Firecrawl 公开页（免登录）
 
 1. 访问 https://www.firecrawl.dev/app/api-keys 注册获取免费 API Key（格式：`fc-...`）
-2. 双击 `xiaozhao-radar.html` 打开页面
+2. 打开 `index.html` 页面
 3. 在 `Firecrawl API Key` 框填 Key → 点 **🕷 一键爬虫**
 4. 前20个站爬完立即出数据，后台继续加载剩余站点
 
@@ -58,10 +58,10 @@ Firecrawl 主选抓取**失败时**，页面会**自动**调用 **AnySearch extr
 
 - 顶栏新增 **「AnySearch Key（可选）」** 框：留空即用匿名（限速），填了在 https://anysearch.com/console/api-keys 申请的免费 Key 可提额
 - **CORS 说明（重要）**：`api.anysearch.com` 不返回跨域头，纯前端浏览器直连会被拦截，因此代码内置**多代理自动切换**：本地代理 `http://localhost:8787/`（最稳定）→ `corsproxy.io` → `codetabs` → `allorigins` → `whateverorigin`，哪个可用自动用哪个，连续失败自动切换
-- **本地代理（推荐，最稳定）**：项目根目录已内置 `proxy.js`，一条命令启动，AnySearch 走本地代理（无第三方中转、无公共代理不稳定的问题）：
+- **本地代理（推荐，最稳定）**：项目的 `tools/proxy.js` 提供本地代理，一条命令启动，AnySearch 走本地代理（无第三方中转、无公共代理不稳定的问题）：
 ```bash
-node proxy.js            # 默认端口 8787，启动后页面自动检测并使用
-node proxy.js 9090       # 自定义端口
+node tools/proxy.js            # 默认端口 8787，启动后页面自动检测并使用
+node tools/proxy.js 9090       # 自定义端口
 ```
 - **自托管 serverless 代理（部署 GitHub Pages 时推荐）**：在 `index.html` 顶部 `ANYSEARCH_PROXIES` 数组最前面加你自己的代理地址（如 Vercel/Cloudflare 的 `api/anysearch.js`），或设置浏览器 localStorage 的 `xiaozhao_anysearch_proxy` 覆盖默认列表
 
@@ -111,14 +111,16 @@ opencli xiaozhao search "2027 校招" -f json > xiaozhao.json
 
 ```
 xiaozhao-radar/
-├── xiaozhao-radar.html          # 主程序（单文件即可运行）
-├── index.html                   # GitHub Pages 入口（与主程序同步）
+├── index.html                   # GitHub Pages 与本地页面入口
+├── jobs.json                    # 页面默认加载的聚合数据
+├── scripts/                     # 离线数据同步脚本
+├── tools/                       # 本地辅助工具（CORS 代理）
+├── assets/                      # 视频等静态资源
+├── docs/                        # 项目导读与同步说明
+├── archive/                     # 旧页面和历史数据，仅供参考
 ├── README.md                    # 说明文档
-├── LICENSE                      # Apache 2.0
 ├── manifest.json                # 项目元数据
-└── clis/xiaozhao/               # OpenCLI 校招专用适配器
-    ├── search.js                # `opencli xiaozhao search` 命令实现
-    └── utils.js                 # Playwright 页面交互 + 字段映射
+└── LICENSE                      # Apache 2.0
 ```
 
 ## ❓ 常见问题
@@ -143,7 +145,7 @@ Apache 2.0 License
 - 版本号升至 v2.4.1
 
 ### v2.4.0
-- **打通同步闭环（核心功能）**：`index.html` 初始化时首选 `fetch('jobs.json')` 从 GitHub Pages 读取每周五 `sync_tencent_docs.py` 自动同步的聚合数据（结构 `{updated,count,jobs:[...]}`，每条含 `s:"校招信息聚合平台"` 标记）；远程数据加载成功后直接作为主数据源渲染，使「每周五同步 → 页面自动更新」真正生效。远程失败时分级回退：localStorage → 内置 `TD_SNAPSHOT` 快照 →（无聚合数据时）本地代理 `tdFallback` 兜底，离线/首次打开也能看到数据
+- **打通同步闭环（核心功能）**：`index.html` 初始化时首选 `fetch('jobs.json')` 从 GitHub Pages 读取 `scripts/sync_tencent_docs.py` 自动同步的聚合数据（结构 `{updated,count,jobs:[...]}`，每条含 `s:"校招信息聚合平台"` 标记）；远程数据加载成功后直接作为主数据源渲染，使「每周五同步 → 页面自动更新」真正生效。远程失败时分级回退：localStorage → 内置 `TD_SNAPSHOT` 快照 →（无聚合数据时）本地代理 `tdFallback` 兜底，离线/首次打开也能看到数据
 - **安全加固**：① 外链渲染加 `^https?://` 校验 + `rel="noopener noreferrer"`，修复 `javascript:` 伪协议 XSS / tabnabbing；② CSV 导出新增字段转义 `csvCell()` + UTF-8 BOM，修复 Excel 中文乱码与含逗号字段错位；③ HTML 转义补全单引号 `&#39;`
 - **代理安全**：`proxy.js` 新增 Origin 白名单（`localhost`/`127.0.0.1`/`file://` 等）+ 403 拦截，防止本地代理被外部站点滥用
 - 版本号升至 v2.4.0
@@ -156,7 +158,7 @@ Apache 2.0 License
 - 新增节点保留地点信息，支持地点/关键词定向爬取（v2.2.0 功能）
 - 版本号升至 v2.3.0
 - ⚠️ **注意**：内置的免费 Firecrawl Key 额度有限（每月 500 次），多人共用或多次测试后可能返回 429。遇到「已抓 N 站 0 条」时，可在顶栏「Firecrawl Key」输入框填自己的 Key 覆盖（仅存本地浏览器），或跑本地 CLI 备用（BrowserAct/OpenCLI）
-- **最终兜底：公开校招数据聚合表**：当 Firecrawl/AnySearch/本地 CLI 全部失败时，自动从**公开的校招信息聚合表**（`docs.qq.com` 公开智能表格，27 届实习提前批信息汇总，实时更新）拉取数据填表，一次可加载 **1700+ 条**实时校招信息（公司/岗位/地点/截止/投递链接/行业标签齐全）。读取走本地代理（`node proxy.js`）转发 + base64/zlib 解压 + 智能表格数据解析；本地代理不可用时自动退回公共 CORS 代理。来源：https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ
+- **最终兜底：公开校招数据聚合表**：当 Firecrawl/AnySearch/本地 CLI 全部失败时，自动从**公开的校招信息聚合表**（`docs.qq.com` 公开智能表格，27 届实习提前批信息汇总，实时更新）拉取数据填表，一次可加载 **1700+ 条**实时校招信息（公司/岗位/地点/截止/投递链接/行业标签齐全）。读取走本地代理（`node tools/proxy.js`）转发 + base64/zlib 解压 + 智能表格数据解析；本地代理不可用时自动退回公共 CORS 代理。来源：https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ
 
 ### v2.2.0
 - **地点/关键词定向爬取**：搜索框填地点或关键词（如「北京」「Java」），一键爬虫抓取结果**只保留匹配项**（公司/职位/地点/福利任一命中即可），留空则抓该行业全部；配合行业定向可实现「行业 + 城市」双维精准

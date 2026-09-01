@@ -1,9 +1,9 @@
 // 校招雷达 · 本地 CORS 代理（Node.js，10 行核心）
-// 用法：node proxy.js   →   http://localhost:8787
+// 用法：node tools/proxy.js   →   http://localhost:8787
 // 用途：
 //  1) AnySearch 兜底：页面自动检测本代理优先使用（比公共代理稳定、无第三方中转）
 //  2) 腾讯文档最终兜底：转发 docs.qq.com 数据接口并加 CORS 头（匿名可读）
-// 想换端口：node proxy.js 9090
+// 想换端口：node tools/proxy.js 9090
 const http = require('http'), https = require('https'), { URL } = require('url');
 const PORT = parseInt(process.argv[2] || '8787', 10);
 // Origin 白名单：仅允许校招雷达页面和本地开发访问，防止被外部滥用

@@ -19,9 +19,9 @@
       以 Access-Control-Allow-Origin:* 提供，页面(含本地双击 HTML)自动跨域读取最新数据。
 
 用法：
-  python sync_tencent_docs.py            # 仅生成本地 jobs.json（不推送）
-  python sync_tencent_docs.py --push     # 生成并提交 + push 到 GitHub main
-  python sync_tencent_docs.py --dry      # 仅打印统计，不写文件
+  python scripts/sync_tencent_docs.py            # 仅生成本地 jobs.json（不推送）
+  python scripts/sync_tencent_docs.py --push     # 生成并提交 + push 到 GitHub main
+  python scripts/sync_tencent_docs.py --dry      # 仅打印统计，不写文件
 """
 
 import sys, os, re, json, base64, zlib, urllib.request, urllib.parse, subprocess, datetime
@@ -274,17 +274,17 @@ def run(push=False, dry=False):
         "count": len(all_rows),
         "jobs": all_rows,
     }
-    here = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(here, "jobs.json")
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(project_root, "jobs.json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
     print(f"\n[jobs.json] 已写入 {path} ({os.path.getsize(path)//1024} KB)")
     if push:
         try:
-            subprocess.run(["git", "add", "jobs.json"], cwd=here, check=True)
+            subprocess.run(["git", "add", "jobs.json"], cwd=project_root, check=True)
             msg = f"data: sync jobs.json from Tencent Docs ({len(all_rows)} jobs, {out['updated']})"
-            subprocess.run(["git", "commit", "-m", msg], cwd=here, check=True)
-            subprocess.run(["git", "push", "origin", "main"], cwd=here, check=True)
+            subprocess.run(["git", "commit", "-m", msg], cwd=project_root, check=True)
+            subprocess.run(["git", "push", "origin", "main"], cwd=project_root, check=True)
             print("[git] 已 commit + push 到 main")
         except subprocess.CalledProcessError as e:
             print(f"[git] 推送失败: {e}")

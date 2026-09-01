@@ -19,7 +19,7 @@ Campus recruitment information is scattered across 100+ company career pages. Fr
 ### Option A: Firecrawl (no login required)
 
 1. Get a free API key from [Firecrawl](https://www.firecrawl.dev/app/api-keys)
-2. Open `xiaozhao-radar.html` in your browser
+2. Open `index.html` in your browser
 3. Paste your Firecrawl API key → click **🕷 Crawl**
 4. First 20 sites load instantly; remaining sites load in the background
 

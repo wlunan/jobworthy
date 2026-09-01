@@ -20,21 +20,21 @@
 
 ## 同步脚本
 - GitHub 仓库: https://github.com/jiabaobei/xiaozhao-radar
-- 脚本文件: sync_tencent_docs.py（仓库根目录，纯标准库）
-- 详细文档: SYNC.md（仓库根目录）
+- 脚本文件: scripts/sync_tencent_docs.py（纯标准库）
+- 详细文档: docs/SYNC.md
 
 ## 每周五指令
 用户说"同步校招"时：
 1. 拉取/clone 仓库到本地
-2. 运行 python sync_tencent_docs.py --push
+2. 运行 python scripts/sync_tencent_docs.py --push
 3. 检查输出条数与 GitHub Pages 部署状态
 4. 汇报：本次X条，较上次±Y条
 
 ## 跨设备说明
 若在新电脑/手机收到指令：
-1. 从 GitHub 下载 sync_tencent_docs.py 和 SYNC.md
+1. 从 GitHub 下载 scripts/sync_tencent_docs.py 和 docs/SYNC.md
 2. 确保本地有 Python 与 git
-3. 运行 python sync_tencent_docs.py --push
+3. 运行 python scripts/sync_tencent_docs.py --push
 
 ## 已验证链路
 - 2026-08-05 实测：拉取1355条 → jobs.json → push → GitHub Pages updated=2026-08-05

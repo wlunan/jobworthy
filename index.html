@@ -1072,7 +1072,7 @@ var SAMPLE_DATA=[
 {c:"中国烟草",p:"烟草育种工程师",l:"多地",e:"本科及以上",w:"六险二金，高福利",d:"2026-08-31",s:"中国烟草招聘",t:"央企",u:"https://www.tobacco.gov.cn"}
 ];
 
-// ★ 打通同步闭环：页面首选从 GitHub Pages 读取每周五 sync_tencent_docs.py 自动同步的聚合数据 jobs.json
+// ★ 打通同步闭环：页面首选从 GitHub Pages 读取 scripts/sync_tencent_docs.py 自动同步的聚合数据 jobs.json
 //   jobs.json 结构：{updated:"YYYY-MM-DD", count:N, jobs:[...]}，每条含 s:"校招信息聚合平台" 标记
 //   加载成功即作为主数据源直接渲染，使「每周五同步 → 页面自动更新」真正生效；失败则分级回退
 async function loadRemoteJobs(){
@@ -1205,7 +1205,7 @@ function _activeProxies(){
     return live.length?live:list;
 }
 async function anysearchExtract(siteUrl){
-    // ★ 先探测本地代理是否在线：不在线时提示用户启动 proxy.js（公共代理今天全挂，本地代理是稳定通道）
+    // ★ 先探测本地代理是否在线：不在线时提示用户启动 tools/proxy.js（公共代理今天全挂，本地代理是稳定通道）
     const proxies = _activeProxies();
     if(!window.__proxyChecked){
         window.__proxyChecked=true;
@@ -1213,7 +1213,7 @@ async function anysearchExtract(siteUrl){
             const probe=await fetch("http://localhost:8787/https://example.com/",{method:"GET",mode:"cors"});
             if(!probe.ok) throw new Error("probe failed");
         }catch(e){
-            toast("🛠 AnySearch 备用需要本地代理：请先双击 proxy.js 启动后再点爬虫（其他公共代理不稳定）");
+            toast("🛠 AnySearch 备用需要本地代理：请先运行 node tools/proxy.js 后再点爬虫（其他公共代理不稳定）");
         }
     }
     const target = "https://api.anysearch.com/mcp";

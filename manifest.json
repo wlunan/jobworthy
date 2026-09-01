@@ -2,9 +2,9 @@
   "name": "xiaozhao-radar",
   "version": "2.4.1",
   "description": "Xiaozhao Radar - Campus Recruitment Radar, real-time job data via Firecrawl",
-  "main": "xiaozhao-radar.html",
+  "main": "index.html",
   "scripts": {
-    "start": "Open xiaozhao-radar.html in browser"
+    "start": "Open index.html in browser"
   },
   "repository": {
     "type": "git",

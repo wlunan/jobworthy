@@ -11,7 +11,7 @@
 |---|---|
 | 文档标题 | 27届实习提前批信息汇总 |
 | 文档链接 | https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ |
-| padId | `NDLQXhQbWdHI` |
+| padId | `DTkRMUVhoUWJXZEhJ` |
 | 文档类型 | 智能表格（smartsheet），**私有文档（需登录态，但 opendoc 接口匿名可读）** |
 
 ### 核心子表（sheet）
@@ -68,17 +68,17 @@ Header: Referer: https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ
 
 ## 四、同步脚本用法
 
-脚本：`sync_tencent_docs.py`（仓库根目录，纯标准库，无需 pip 安装）
+脚本：`scripts/sync_tencent_docs.py`（纯标准库，无需 pip 安装）
 
 ```bash
 # 仅生成本地 jobs.json（不推送，用于预览）
-python sync_tencent_docs.py --dry
+python scripts/sync_tencent_docs.py --dry
 
 # 生成 jobs.json（覆盖仓库根目录）
-python sync_tencent_docs.py
+python scripts/sync_tencent_docs.py
 
 # 生成 + 自动 git commit + push 到 main
-python sync_tencent_docs.py --push
+python scripts/sync_tencent_docs.py --push
 ```
 
 脚本自动完成：拉两表 → 字段映射 → 去重（公司+职位+地点）→ 过期过滤 → 生成 `jobs.json` →（可选）推送。
@@ -89,7 +89,7 @@ python sync_tencent_docs.py --push
 
 **触发方式**：用户每周五发一句「同步校招」→ AI 执行以下动作：
 
-1. 运行 `python sync_tencent_docs.py --push`
+1. 运行 `python scripts/sync_tencent_docs.py --push`
 2. 检查输出统计（总条数、各行业分布）是否正常
 3. 确认 GitHub Pages 部署（`jiabaobei.github.io/xiaozhao-radar/jobs.json` 通常 1-2 分钟生效）
 4. 向用户汇报：「已同步，本次 X 条，较上次 ±Y 条」
@@ -104,4 +104,4 @@ python sync_tencent_docs.py --push
 - **接口偶发 401/超时**：腾讯文档接口偶有限流。脚本带分页重试与 `added==0` 提前停止；若某次失败，重试或等几分钟再跑。
 - **数据异常**：若某次同步条数骤降/骤增，先 `--dry` 预览确认，不轻易 `--push`。
 - **文档结构变更**：若腾讯文档改了列名（如「公司名称」改名），需同步更新 `parse_sheet`/`to_row` 中的中文字段名。
-- **兜底（页面端）**：`index.html` 内置 `tdFallback()` 仍保留——若 GitHub Pages 的 jobs.json 缺失，页面可临时直连腾讯文档兜底（依赖本地代理 `node proxy.js`）。
+- **兜底（页面端）**：`index.html` 内置 `tdFallback()` 仍保留——若 GitHub Pages 的 jobs.json 缺失，页面可临时直连腾讯文档兜底（依赖本地代理 `node tools/proxy.js`）。
