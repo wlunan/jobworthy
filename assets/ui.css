@@ -146,6 +146,11 @@ tbody td{color:#3d4755}
 }
 .link-btn:hover,.manage-btn:hover{background:var(--ui-primary);border-color:var(--ui-primary);color:#fff}
 .manage-btn.added{background:var(--ui-success-soft);border-color:#beded4;color:var(--ui-success)}
+.manage-actions{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.exclude-btn{border:0;background:transparent;color:var(--ui-muted);padding:5px 4px;font:inherit;font-size:12px;cursor:pointer}
+.exclude-btn:hover{color:var(--ui-danger);text-decoration:underline}
+.exclude-btn.added,.exclude-btn:disabled{color:var(--ui-muted);cursor:default;text-decoration:none;opacity:.72}
+.exclude-btn:focus-visible{outline:3px solid rgba(82,103,184,.22);outline-offset:2px;border-radius:4px}
 .status-pill{background:var(--ui-success-soft);color:var(--ui-success)}
 .del-btn:hover,.row-delete:hover{color:var(--ui-danger)}
 
