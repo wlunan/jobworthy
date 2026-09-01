@@ -53,6 +53,9 @@ body{
 .search-field{position:relative;display:flex;align-items:center}
 .search-field>svg{position:absolute;left:11px;width:16px;height:16px;color:var(--ui-muted);pointer-events:none}
 .search-field .s-input{padding-left:34px}
+.search-field .s-select{min-height:36px;border:1px solid var(--ui-border);border-right:none;border-radius:8px 0 0 8px;background:var(--ui-surface-muted);color:var(--ui-text);padding:0 2px 0 32px;font-size:13px;cursor:pointer;font-weight:650}
+.search-field .s-select:focus{outline:none;border-color:var(--ui-primary);box-shadow:0 0 0 3px rgba(49,86,200,.14);position:relative;z-index:1}
+.search-field .s-select+.s-input{border-radius:0 8px 8px 0;padding-left:12px}
 .quick-guide{margin:12px clamp(16px,3vw,32px) 0;border:1px solid var(--ui-border);border-radius:var(--ui-radius);background:var(--ui-surface);box-shadow:var(--ui-shadow)}
 .quick-guide summary{display:flex;align-items:center;gap:8px;padding:11px 14px;color:var(--ui-text);font-size:13px;font-weight:650;cursor:pointer;list-style:none}
 .quick-guide summary::-webkit-details-marker{display:none}.quick-guide summary>svg{width:16px;height:16px;color:var(--ui-primary)}
@@ -214,6 +217,8 @@ tbody td{color:#3d4755}
 @media (max-width:640px){
   .top-bar>div:first-child{flex-wrap:wrap}.top-nav,.nav{width:100%;margin-left:0}
   .s-input,.key-input{width:100%}
+  .search-field{width:100%}
+  .search-field .s-select{max-width:96px;flex-shrink:0}
   .hint{max-width:none;margin:10px 16px 0}
   .table-wrap,table,#empty,#pagination{margin-left:16px;margin-right:16px}
   #crawlProgress{margin:10px 16px!important}

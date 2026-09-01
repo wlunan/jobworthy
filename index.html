@@ -92,7 +92,7 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
   </div>
 </div>
 <div class="toolbar">
-<div class="search-field"><i data-lucide="search" aria-hidden="true"></i><input type="text" class="s-input" id="searchInput" placeholder="搜索地点、行业或关键词（如：北京 / Java）" oninput="filterData()"></div>
+<div class="search-field"><i data-lucide="search" aria-hidden="true"></i><select class="s-select" id="searchField" onchange="onSearchFieldChange()" title="选择要搜索的字段"><option value="">全部字段</option><option value="c">公司</option><option value="p">职位</option><option value="l">地点</option><option value="ind">行业</option><option value="e">学历</option><option value="w">批次</option><option value="s">来源</option></select><input type="text" class="s-input" id="searchInput" placeholder="搜索公司、职位、地点或关键词（如：北京 / Java）" oninput="filterData()"></div>
 <select class="select" id="indFilter" onchange="filterData()" style="width:150px">
 <option value="">全部行业</option>
 <option value="互联网科技">互联网科技</option>
@@ -1062,6 +1062,8 @@ async function loadRemoteJobs(){
     return null;
 }
 
+var SEARCH_FIELD_PLACEHOLDERS={"":"搜索公司、职位、地点或关键词（如：北京 / Java）",c:"搜索公司名称（如：腾讯）",p:"搜索职位名称（如：Java）",l:"搜索地点（如：北京）",ind:"搜索行业（如：互联网科技）",e:"搜索学历要求（如：本科）",w:"搜索批次（如：2026）",s:"搜索来源（如：互联网）"};
+
 async function init(){
     loadApplications();
     // 1) 首选：GitHub Pages 上每周五同步的聚合数据（打通同步闭环）
@@ -1604,6 +1606,7 @@ function changePageSize(size){
 
 function filterData(preservePage){
     var sv=document.getElementById("searchInput").value.toLowerCase();
+    var sField=document.getElementById("searchField").value;
     var iv=document.getElementById("indFilter").value;
     var sf=document.getElementById("srcFilter").value;
     var ef=document.getElementById("eduFilter").value;
@@ -1612,7 +1615,7 @@ function filterData(preservePage){
     var lf=document.getElementById("linkFilter").value;
     var cutoff=uf?new Date(Date.now()-uf*86400000):null;
     F=D.filter(function(item){
-        var ms=!sv||(item.c||"").toLowerCase().includes(sv)||(item.p||"").toLowerCase().includes(sv)||(item.l||"").toLowerCase().includes(sv)||(item.ind||"").toLowerCase().includes(sv);
+        var ms=!sv||(sField?String(item[sField]||"").toLowerCase().includes(sv):(item.c||"").toLowerCase().includes(sv)||(item.p||"").toLowerCase().includes(sv)||(item.l||"").toLowerCase().includes(sv)||(item.ind||"").toLowerCase().includes(sv));
         var ms4=!iv||!item.ind||item.ind===iv;
         var ms2=!sf||!item.t||item.t===sf;
         var ms3=!ef||item.e===ef;
@@ -1628,8 +1631,14 @@ function filterData(preservePage){
     saveViewState();
 }
 
+function onSearchFieldChange(){
+    document.getElementById("searchInput").placeholder=SEARCH_FIELD_PLACEHOLDERS[document.getElementById("searchField").value]||SEARCH_FIELD_PLACEHOLDERS[""];
+    filterData();
+}
+
 function clearFilters(){
-    ["searchInput","indFilter","srcFilter","eduFilter","batchFilter","updatedFilter","linkFilter"].forEach(function(id){document.getElementById(id).value="";});
+    ["searchInput","searchField","indFilter","srcFilter","eduFilter","batchFilter","updatedFilter","linkFilter"].forEach(function(id){document.getElementById(id).value="";});
+    document.getElementById("searchInput").placeholder=SEARCH_FIELD_PLACEHOLDERS[""];
     filterData();
 }
 
@@ -1664,18 +1673,19 @@ function changeSort(value){
 }
 
 function saveViewState(){
-    var state={search:document.getElementById("searchInput").value,industry:document.getElementById("indFilter").value,source:document.getElementById("srcFilter").value,education:document.getElementById("eduFilter").value,batch:document.getElementById("batchFilter").value,updated:document.getElementById("updatedFilter").value,link:document.getElementById("linkFilter").value,sort:currentSort,page:currentPage,pageSize:pageSize};
+    var state={search:document.getElementById("searchInput").value,searchField:document.getElementById("searchField").value,industry:document.getElementById("indFilter").value,source:document.getElementById("srcFilter").value,education:document.getElementById("eduFilter").value,batch:document.getElementById("batchFilter").value,updated:document.getElementById("updatedFilter").value,link:document.getElementById("linkFilter").value,sort:currentSort,page:currentPage,pageSize:pageSize};
     localStorage.setItem(VIEW_STATE_KEY,JSON.stringify(state));
 }
 
 function restoreViewState(){
     var state={};try{state=JSON.parse(localStorage.getItem(VIEW_STATE_KEY)||"{}");}catch(e){}
-    var values={searchInput:state.search,indFilter:state.industry,srcFilter:state.source,eduFilter:state.education,batchFilter:state.batch,updatedFilter:state.updated,linkFilter:state.link,sortSelect:state.sort};
+    var values={searchInput:state.search,searchField:state.searchField,indFilter:state.industry,srcFilter:state.source,eduFilter:state.education,batchFilter:state.batch,updatedFilter:state.updated,linkFilter:state.link,sortSelect:state.sort};
     Object.keys(values).forEach(function(id){if(values[id]!==undefined&&document.getElementById(id))document.getElementById(id).value=values[id];});
     currentSort=document.getElementById("sortSelect").value||"updated_desc";
     pageSize=[20,50,100].includes(Number(state.pageSize))?Number(state.pageSize):20;
     currentPage=Math.max(1,Number(state.page)||1);
     document.getElementById("pageSizeSelect").value=String(pageSize);
+    document.getElementById("searchInput").placeholder=SEARCH_FIELD_PLACEHOLDERS[document.getElementById("searchField").value]||SEARCH_FIELD_PLACEHOLDERS[""];
 }
 
 function csvCell(v){
