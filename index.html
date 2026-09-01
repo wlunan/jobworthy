@@ -32,7 +32,6 @@ tbody td{padding:11px 16px;vertical-align:middle;color:#374151}
 .tag-g{background:#e0ecff;color:#2563eb}.tag-y{background:#fef3c7;color:#b45309}.tag-t{background:#d1fae5;color:#047857}.tag-a{background:#fce7f3;color:#be185d}.tag-b{background:#e0e7ff;color:#4338ca}.tag-s{background:#ede9fe;color:#6d28d9}
 .link-btn{color:#5b6ef5;text-decoration:none;font-size:12px;font-weight:600;padding:4px 10px;border:1px solid #e0e3ff;border-radius:6px;transition:all .15s;white-space:nowrap}
 .link-btn:hover{background:#5b6ef5;color:#fff;border-color:#5b6ef5}
-.edu-b{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;background:#f1f5f9;color:#475569;white-space:nowrap}
 .del-btn{background:0 0;border:0;color:#cbd2dc;cursor:pointer;font-size:16px;padding:2px 6px;transition:color .15s}
 .del-btn:hover{color:#ef4444}
 .manage-btn{border:1px solid #c7d2fe;background:#eef2ff;color:#4338ca;border-radius:7px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}.manage-btn:hover{background:#4338ca;color:#fff}.manage-btn.added{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
@@ -82,7 +81,7 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 <body>
 <div class="toast" id="toast"></div>
 <div class="top-bar">
-<div style="display:flex;align-items:center"><h1><i data-lucide="radar" aria-hidden="true"></i> Xiaozhao Radar - 校招雷达 <span style="font-size:12px;background:rgba(255,255,255,.25);padding:3px 10px;border-radius:999px;font-weight:600;vertical-align:middle">v2.3.0</span></h1><nav class="top-nav"><a class="active" href="index.html">招聘机会</a><a href="applications.html">我的投递</a></nav></div>
+<div style="display:flex;align-items:center"><h1><i data-lucide="radar" aria-hidden="true"></i> Xiaozhao Radar - 校招雷达 <span style="font-size:12px;background:rgba(255,255,255,.25);padding:3px 10px;border-radius:999px;font-weight:600;vertical-align:middle">v2.4.2</span></h1><nav class="top-nav"><a class="active" href="index.html">招聘机会</a><a href="applications.html">我的投递</a></nav></div>
   <div class="header-actions">
   <button class="btn btn-g" onclick="addRow()"><i data-lucide="plus" aria-hidden="true"></i> 添加</button>
   <button class="btn btn-o" onclick="exportExcel()"><i data-lucide="download" aria-hidden="true"></i> 导出</button>
@@ -92,7 +91,7 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
   </div>
 </div>
 <div class="toolbar">
-<div class="search-field"><i data-lucide="search" aria-hidden="true"></i><select class="s-select" id="searchField" onchange="onSearchFieldChange()" title="选择要搜索的字段"><option value="">全部字段</option><option value="c">公司</option><option value="p">职位</option><option value="l">地点</option><option value="ind">行业</option><option value="e">学历</option><option value="w">批次</option><option value="s">来源</option></select><input type="text" class="s-input" id="searchInput" placeholder="搜索公司、职位、地点或关键词（如：北京 / Java）" oninput="filterData()"></div>
+<div class="search-field"><i data-lucide="search" aria-hidden="true"></i><select class="s-select" id="searchField" onchange="onSearchFieldChange()" title="选择要搜索的字段"><option value="">全部字段</option><option value="c">公司</option><option value="p">职位</option><option value="l">地点</option><option value="ind">行业</option><option value="w">批次</option><option value="s">来源</option></select><input type="text" class="s-input" id="searchInput" placeholder="搜索公司、职位、地点或关键词（如：北京 / Java）" oninput="filterData()"></div>
 <select class="select" id="indFilter" onchange="filterData()" style="width:150px">
 <option value="">全部行业</option>
 <option value="互联网科技">互联网科技</option>
@@ -118,7 +117,8 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 <option value="综合">综合招聘</option>
 <option value="其他">其他</option>
 </select>
-<select class="select" id="eduFilter" onchange="filterData()"><option value="">全部学历</option><option value="本科及以上">本科及以上</option><option value="硕士及以上">硕士及以上</option></select>
+<!-- 数据源筛选：当前仅有聚合表格数据（默认），后续接入其他表格岗位数据时在此追加 option -->
+<select class="select" id="dsFilter" onchange="filterData()"><option value="">全部数据源</option><option value="校招信息聚合平台">校招信息聚合平台</option></select>
 <input type="text" class="select" id="batchFilter" placeholder="批次筛选" oninput="filterData()" style="width:120px">
 <select class="select" id="updatedFilter" onchange="filterData()"><option value="">全部更新时间</option><option value="1">最近1天</option><option value="3">最近3天</option><option value="7">最近7天</option><option value="30">最近30天</option></select>
 <select class="select" id="linkFilter" onchange="filterData()"><option value="">全部链接</option><option value="official">有官方公告</option><option value="apply">有投递链接</option><option value="both">公告和投递均有</option></select>
@@ -136,7 +136,7 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 </details>
 <div id="empty"><div class="icon"><i data-lucide="inbox" aria-hidden="true"></i></div><h3>还没有数据</h3><p id="emptyHint">暂未读取到已同步的岗位数据，请稍后刷新页面。</p></div>
 <div class="table-wrap"><table id="dataTable" style="display:none">
-<thead><tr><th style="width:44px">#</th><th>公司</th><th>职位 / 标题</th><th>行业</th><th>更新时间</th><th>批次</th><th>地点</th><th>学历</th><th>截止日期</th><th>官方公告</th><th>投递链接</th><th>来源</th><th>投递管理</th></tr></thead>
+<thead><tr><th style="width:44px">#</th><th>公司</th><th>职位 / 标题</th><th>行业</th><th>更新时间</th><th>批次</th><th>地点</th><th>截止日期</th><th>官方公告</th><th>投递链接</th><th>来源</th><th>投递管理</th></tr></thead>
 <tbody id="tbody"></tbody>
 </table></div>
 <div id="pagination" style="display:none">
@@ -154,6 +154,8 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 let D=[],F=[],currentPage=1,pageSize=20,currentSort="updated_desc";
 const VIEW_STATE_KEY="xiaozhao_radar_view_state_v1";
 const APPLICATIONS_STORAGE_KEY="xiaozhao_radar_applications_v2";
+// 数据源标识：当前仅有聚合表格数据；后续接入其他表格岗位数据时，新数据的 ds 字段写对应来源，并在 dsFilter 下拉追加 option
+const DEFAULT_DATA_SOURCE="校招信息聚合平台";
 let applications=[];
 
 const DEFAULT_FIRECRAWL_KEY = "";
@@ -1029,18 +1031,18 @@ const CRAWL_SITES = [
 ];
 
 var SAMPLE_DATA=[
-{c:"百度",p:"27届暑期-数据分析实习生",l:"北京/上海",e:"本科及以上",w:"250-300/天，免费三餐，租房补贴",d:"2026-06-30",s:"BOSS直聘",t:"互联网",u:"https://www.zhipin.com"},
-{c:"小米",p:"多岗位实习生（2027届）",l:"北京/武汉",e:"本科及以上",w:"餐补，上市公司，转正机会大",d:"2026-06-30",s:"实习僧",t:"互联网",u:"https://www.shixiseng.com"},
-{c:"腾讯",p:"暑期实习生（多岗位）",l:"深圳/北京/上海/广州/成都/杭州",e:"本科及以上",w:"免费三餐，健身房，年假30天",d:"2026-06-30",s:"腾讯招聘",t:"互联网",u:"https://join.qq.com"},
-{c:"阿里巴巴",p:"Java开发实习生",l:"杭州",e:"本科及以上",w:"股票期权，免费三餐，年度体检",d:"2026-06-20",s:"阿里巴巴",t:"互联网",u:"https://www.alibaba.com"},
-{c:"字节跳动",p:"后端开发实习生",l:"北京/上海",e:"本科及以上",w:"免费三餐，六险一金，健身补贴",d:"2026-07-01",s:"字节跳动",t:"互联网",u:"https://www.bytedance.com"},
-{c:"华为",p:"软件开发实习生",l:"深圳/东莞",e:"本科及以上",w:"股票分红，免费食堂，健身房",d:"2026-06-30",s:"智联招聘",t:"互联网",u:"https://career.huawei.com"},
-{c:"美团",p:"外卖运营实习生",l:"北京",e:"本科及以上",w:"免费工作餐，交通补贴",d:"2026-06-15",s:"智联招聘",t:"互联网",u:"https://www.meituan.com"},
-{c:"中国工商银行",p:"金融科技管培生（暑期）",l:"北京",e:"本科及以上",w:"六险二金，补充医疗，年度体检",d:"2026-07-15",s:"四大行招聘",t:"央企",u:"https://www.icbc.com.cn"},
-{c:"中国移动",p:"5G技术研发实习生",l:"广州/北京",e:"硕士及以上",w:"六险二金，通讯免月租，年假",d:"2026-07-31",s:"中国移动招聘",t:"央企",u:"https://www.10086.cn"},
-{c:"国家电网",p:"电力系统工程师（暑期）",l:"上海",e:"本科及以上",w:"六险二金，高额年终奖",d:"2026-06-15",s:"国家电网招聘",t:"央企",u:"https://www.sgcc.com.cn"},
-{c:"中国石化",p:"石油化工工程师",l:"北京/上海",e:"本科及以上",w:"六险二金，带薪年假",d:"2026-07-15",s:"中国石化招聘",t:"央企",u:"https://www.sinopec.com"},
-{c:"中国烟草",p:"烟草育种工程师",l:"多地",e:"本科及以上",w:"六险二金，高福利",d:"2026-08-31",s:"中国烟草招聘",t:"央企",u:"https://www.tobacco.gov.cn"}
+{c:"百度",p:"27届暑期-数据分析实习生",l:"北京/上海",w:"250-300/天，免费三餐，租房补贴",d:"2026-06-30",s:"BOSS直聘",t:"互联网",u:"https://www.zhipin.com"},
+{c:"小米",p:"多岗位实习生（2027届）",l:"北京/武汉",w:"餐补，上市公司，转正机会大",d:"2026-06-30",s:"实习僧",t:"互联网",u:"https://www.shixiseng.com"},
+{c:"腾讯",p:"暑期实习生（多岗位）",l:"深圳/北京/上海/广州/成都/杭州",w:"免费三餐，健身房，年假30天",d:"2026-06-30",s:"腾讯招聘",t:"互联网",u:"https://join.qq.com"},
+{c:"阿里巴巴",p:"Java开发实习生",l:"杭州",w:"股票期权，免费三餐，年度体检",d:"2026-06-20",s:"阿里巴巴",t:"互联网",u:"https://www.alibaba.com"},
+{c:"字节跳动",p:"后端开发实习生",l:"北京/上海",w:"免费三餐，六险一金，健身补贴",d:"2026-07-01",s:"字节跳动",t:"互联网",u:"https://www.bytedance.com"},
+{c:"华为",p:"软件开发实习生",l:"深圳/东莞",w:"股票分红，免费食堂，健身房",d:"2026-06-30",s:"智联招聘",t:"互联网",u:"https://career.huawei.com"},
+{c:"美团",p:"外卖运营实习生",l:"北京",w:"免费工作餐，交通补贴",d:"2026-06-15",s:"智联招聘",t:"互联网",u:"https://www.meituan.com"},
+{c:"中国工商银行",p:"金融科技管培生（暑期）",l:"北京",w:"六险二金，补充医疗，年度体检",d:"2026-07-15",s:"四大行招聘",t:"央企",u:"https://www.icbc.com.cn"},
+{c:"中国移动",p:"5G技术研发实习生",l:"广州/北京",w:"六险二金，通讯免月租，年假",d:"2026-07-31",s:"中国移动招聘",t:"央企",u:"https://www.10086.cn"},
+{c:"国家电网",p:"电力系统工程师（暑期）",l:"上海",w:"六险二金，高额年终奖",d:"2026-06-15",s:"国家电网招聘",t:"央企",u:"https://www.sgcc.com.cn"},
+{c:"中国石化",p:"石油化工工程师",l:"北京/上海",w:"六险二金，带薪年假",d:"2026-07-15",s:"中国石化招聘",t:"央企",u:"https://www.sinopec.com"},
+{c:"中国烟草",p:"烟草育种工程师",l:"多地",w:"六险二金，高福利",d:"2026-08-31",s:"中国烟草招聘",t:"央企",u:"https://www.tobacco.gov.cn"}
 ];
 
 // ★ 打通同步闭环：页面首选从 GitHub Pages 读取 scripts/sync_tencent_docs.py 自动同步的聚合数据 jobs.json
@@ -1062,7 +1064,7 @@ async function loadRemoteJobs(){
     return null;
 }
 
-var SEARCH_FIELD_PLACEHOLDERS={"":"搜索公司、职位、地点或关键词（如：北京 / Java）",c:"搜索公司名称（如：腾讯）",p:"搜索职位名称（如：Java）",l:"搜索地点（如：北京）",ind:"搜索行业（如：互联网科技）",e:"搜索学历要求（如：本科）",w:"搜索批次（如：2026）",s:"搜索来源（如：互联网）"};
+var SEARCH_FIELD_PLACEHOLDERS={"":"搜索公司、职位、地点或关键词（如：北京 / Java）",c:"搜索公司名称（如：腾讯）",p:"搜索职位名称（如：Java）",l:"搜索地点（如：北京）",ind:"搜索行业（如：互联网科技）",w:"搜索批次（如：2026）",s:"搜索来源（如：互联网）"};
 
 async function init(){
     loadApplications();
@@ -1076,6 +1078,8 @@ async function init(){
         var saved=localStorage.getItem("xiaozhao_radar_data");
         if(saved){try{D=JSON.parse(saved);}catch(e){D=[];}}
     }
+    // 数据源规范化：未带 ds 标记的历史数据统一归入默认数据源
+    D.forEach(function(x){if(!x.ds)x.ds=DEFAULT_DATA_SOURCE;});
     restoreViewState();
     filterData(true);
     renderIcons();
@@ -1243,15 +1247,6 @@ function extractLocation(text){
   if(found.length) return found.slice(0,4).join("/");
   return "";
 }
-function extractEdu(text){
-  if(/博士/.test(text)) return "博士及以上";
-  if(/硕士/.test(text)) return "硕士及以上";
-  if(/本科/.test(text)) return "本科及以上";
-  if(/大专|专科/.test(text)) return "大专及以上";
-  if(/不限学历|学历不限/.test(text)) return "学历不限";
-  if(/应届/.test(text)) return "应届毕业生";
-  return "";
-}
 function extractDeadline(text){
   var m=text.match(/(\d{4})[-/年.](\d{1,2})[-/月.](\d{1,2})日?/);
   if(m) return m[1]+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[3]).slice(-2);
@@ -1275,11 +1270,11 @@ function mapResult(r, site){
         c: cat,
         p: title.slice(0,80),
         l: extractLocation(text),
-        e: extractEdu(text),
         w: "",
         d: extractDeadline(text),
         s: cat,
         t: site.t||getType(cat),
+        ds: DEFAULT_DATA_SOURCE,
         ind: site.ind||"",
         u: r.url||""
     };
@@ -1424,7 +1419,7 @@ async function startCrawl(){
     showData();
     if(cp)cp.style.display='none';
     // ★ 兜底判断：按"当前筛选条件下的有效结果"算，不是抓到的总数
-    filterData(); // 应用当前筛选（搜索词/行业/学历），得到筛选后的 F
+    filterData(); // 应用当前筛选（搜索词/行业），得到筛选后的 F
     toast('全部加载完成，筛选后共 '+F.length+' 条招聘信息。');
 }
 
@@ -1499,7 +1494,7 @@ function addToApplications(encodedKey,status){
 }
 
 function addRow(){
-    D.unshift({c:"",p:"",l:"",e:"本科及以上",w:"",d:"",s:"",t:"互联网",u:""});F=D.slice();render();saveData();
+    D.unshift({c:"",p:"",l:"",w:"",d:"",s:"",t:"互联网",ds:DEFAULT_DATA_SOURCE,u:""});F=D.slice();render();saveData();
     toast("已添加新行，双击编辑");
 }
 
@@ -1574,7 +1569,6 @@ function render(){
         h+='<td><span ondblclick="editCell(this,'+realIdx+',\'ut\')">'+(item.ut||"-")+'</span></td>';
         h+='<td><span ondblclick="editCell(this,'+realIdx+',\'w\')">'+(item.w||"-")+'</span></td>';
         h+='<td><span ondblclick="editCell(this,'+realIdx+',\'l\')">'+(item.l||"-")+'</span></td>';
-        h+='<td><span class="edu-b" ondblclick="editCell(this,'+realIdx+',\'e\')">'+(item.e||"-")+'</span></td>';
         h+='<td><span ondblclick="editCell(this,'+realIdx+',\'d\')">'+(item.d||"-")+'</span></td>';
         var safeAnnouncement=(item.a&&/^https?:\/\//i.test(item.a))?item.a:'';
         h+='<td>'+(safeAnnouncement?'<a class="link-btn" href="'+safeAnnouncement+'" target="_blank" rel="noopener noreferrer">公告</a>':'-')+'</td>';
@@ -1609,7 +1603,7 @@ function filterData(preservePage){
     var sField=document.getElementById("searchField").value;
     var iv=document.getElementById("indFilter").value;
     var sf=document.getElementById("srcFilter").value;
-    var ef=document.getElementById("eduFilter").value;
+    var dsf=document.getElementById("dsFilter").value;
     var bf=document.getElementById("batchFilter").value.toLowerCase();
     var uf=parseInt(document.getElementById("updatedFilter").value||"0",10);
     var lf=document.getElementById("linkFilter").value;
@@ -1618,7 +1612,7 @@ function filterData(preservePage){
         var ms=!sv||(sField?String(item[sField]||"").toLowerCase().includes(sv):(item.c||"").toLowerCase().includes(sv)||(item.p||"").toLowerCase().includes(sv)||(item.l||"").toLowerCase().includes(sv)||(item.ind||"").toLowerCase().includes(sv));
         var ms4=!iv||!item.ind||item.ind===iv;
         var ms2=!sf||!item.t||item.t===sf;
-        var ms3=!ef||item.e===ef;
+        var ms3=!dsf||(item.ds||DEFAULT_DATA_SOURCE)===dsf;
         var ms5=!bf||(item.w||"").toLowerCase().includes(bf);
         var updatedDate=item.ut?new Date(item.ut):null;
         var ms6=!uf||(updatedDate&&!isNaN(updatedDate.getTime())&&updatedDate>=cutoff);
@@ -1637,7 +1631,7 @@ function onSearchFieldChange(){
 }
 
 function clearFilters(){
-    ["searchInput","searchField","indFilter","srcFilter","eduFilter","batchFilter","updatedFilter","linkFilter"].forEach(function(id){document.getElementById(id).value="";});
+    ["searchInput","searchField","indFilter","srcFilter","dsFilter","batchFilter","updatedFilter","linkFilter"].forEach(function(id){document.getElementById(id).value="";});
     document.getElementById("searchInput").placeholder=SEARCH_FIELD_PLACEHOLDERS[""];
     filterData();
 }
@@ -1673,13 +1667,13 @@ function changeSort(value){
 }
 
 function saveViewState(){
-    var state={search:document.getElementById("searchInput").value,searchField:document.getElementById("searchField").value,industry:document.getElementById("indFilter").value,source:document.getElementById("srcFilter").value,education:document.getElementById("eduFilter").value,batch:document.getElementById("batchFilter").value,updated:document.getElementById("updatedFilter").value,link:document.getElementById("linkFilter").value,sort:currentSort,page:currentPage,pageSize:pageSize};
+    var state={search:document.getElementById("searchInput").value,searchField:document.getElementById("searchField").value,industry:document.getElementById("indFilter").value,source:document.getElementById("srcFilter").value,dataSource:document.getElementById("dsFilter").value,batch:document.getElementById("batchFilter").value,updated:document.getElementById("updatedFilter").value,link:document.getElementById("linkFilter").value,sort:currentSort,page:currentPage,pageSize:pageSize};
     localStorage.setItem(VIEW_STATE_KEY,JSON.stringify(state));
 }
 
 function restoreViewState(){
     var state={};try{state=JSON.parse(localStorage.getItem(VIEW_STATE_KEY)||"{}");}catch(e){}
-    var values={searchInput:state.search,searchField:state.searchField,indFilter:state.industry,srcFilter:state.source,eduFilter:state.education,batchFilter:state.batch,updatedFilter:state.updated,linkFilter:state.link,sortSelect:state.sort};
+    var values={searchInput:state.search,searchField:state.searchField,indFilter:state.industry,srcFilter:state.source,dsFilter:state.dataSource,batchFilter:state.batch,updatedFilter:state.updated,linkFilter:state.link,sortSelect:state.sort};
     Object.keys(values).forEach(function(id){if(values[id]!==undefined&&document.getElementById(id))document.getElementById(id).value=values[id];});
     currentSort=document.getElementById("sortSelect").value||"updated_desc";
     pageSize=[20,50,100].includes(Number(state.pageSize))?Number(state.pageSize):20;
@@ -1697,8 +1691,8 @@ function csvCell(v){
 }
 function exportExcel(){
     if(!F.length){toast("没有数据");return;}
-    var h=["序号","公司","职位","岗位更新时间","批次","地点","学历","截止日期","官方公告","投递链接","来源"];
-    var rows=[];F.forEach(function(item,i){rows.push([i+1,item.c,item.p,item.ut,item.w,item.l,item.e,item.d,item.a,item.u,item.s]);});
+    var h=["序号","公司","职位","岗位更新时间","批次","地点","截止日期","官方公告","投递链接","来源"];
+    var rows=[];F.forEach(function(item,i){rows.push([i+1,item.c,item.p,item.ut,item.w,item.l,item.d,item.a,item.u,item.s]);});
     var csv=h.map(csvCell).join(",")+"\n";rows.forEach(function(r){csv+=r.map(csvCell).join(",")+"\n";});
     var a=document.createElement("a");a.href="data:text/csv;charset=utf-8,\uFEFF"+encodeURIComponent(csv);a.download="xiaozhao-radar-data.csv";a.click();
     toast("已导出CSV");
@@ -1731,7 +1725,7 @@ function handleImport(input){
                     c: company,
                     p: r.p||r.position||r.title||"",
                     l: loc,
-                    e: r.e||r.edu||r.education||r.degree||"",
+                    ds: r.ds||r.dataSource||DEFAULT_DATA_SOURCE,
                     w: r.w||r.batch||r["批次"]||welfare,
                     d: r.d||r.deadline||r.issueDate||"",
                     s: r.s||r.source||"OpenCLI导入",
