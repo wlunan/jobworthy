@@ -1,0 +1,64 @@
+name: Sync jobs and deploy Pages
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Beijing 09:30 every day (UTC 01:30)
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        if: github.event_name != 'push'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sync Tencent Docs
+        if: github.event_name != 'push'
+        run: python scripts/sync_tencent_docs.py
+
+      - name: Commit refreshed data
+        if: github.event_name != 'push'
+        shell: bash
+        run: |
+          if git diff --quiet -- jobs.json; then
+            echo "jobs.json is unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jobs.json
+          git commit -m "data: daily sync jobs.json [skip ci]"
+          git push
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

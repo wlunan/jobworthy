@@ -45,6 +45,19 @@
 
 ## 📋 快速开始
 
+### GitHub Pages 与每日数据同步
+
+仓库内置 `.github/workflows/pages.yml`：
+
+- 推送到 `main` 时自动部署 GitHub Pages；
+- 每天北京时间 09:30 自动运行 `scripts/sync_tencent_docs.py`；
+- `jobs.json` 变化后由 GitHub Actions Bot 提交，再部署最新页面；
+- 也可以在 GitHub Actions 页面通过 `workflow_dispatch` 手动执行。
+
+首次使用时，请在仓库 Settings → Pages 中将 Source 设置为 **GitHub Actions**，并确保 Actions 具有读写仓库内容的权限。
+
+页面中的岗位“进度”和“备注”保存在当前浏览器本地，不会写入公开的 `jobs.json`。每日同步数据后，只要公司、岗位、地点和链接没有变化，个人跟进信息会继续关联到对应岗位。点击“导出”可将当前筛选结果连同投递进度和备注导出为 CSV 表格。
+
 ### 方式一：Firecrawl 公开页（免登录）
 
 1. 访问 https://www.firecrawl.dev/app/api-keys 注册获取免费 API Key（格式：`fc-...`）

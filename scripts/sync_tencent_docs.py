@@ -236,6 +236,7 @@ def run(push=False, dry=False):
     all_rows = []
     seen = set()
     for sheet_id, name, limit in SHEETS:
+        sheet_ok = False
         print(f"[拉取] {name} ({sheet_id}) ...", end=" ", flush=True)
         for off in range(0, limit, PAGE_SIZE):
             try:
@@ -246,6 +247,7 @@ def run(push=False, dry=False):
                 break
             if not page:
                 break
+            sheet_ok = True
             added = 0
             for r in page:
                 row = to_row(r)
@@ -261,6 +263,8 @@ def run(push=False, dry=False):
             if added == 0:  # opendoc 每次从 0 返回，无新增即到底
                 break
         print()  # 换行
+        if not sheet_ok:
+            raise RuntimeError(f"子表拉取失败或无数据，停止覆盖 jobs.json: {name} ({sheet_id})")
     print(f"\n[汇总] 两表合并后共 {len(all_rows)} 条有效招聘信息")
     # 行业分布
     from collections import Counter
