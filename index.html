@@ -133,8 +133,7 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 <input type="password" class="key-input" id="apiKey" placeholder="Firecrawl Key（已内置默认·留空即用）" oninput="localStorage.setItem('xiaozhao_firecrawl_key',this.value)">
 <input type="password" class="key-input" id="anysearchKey" placeholder="AnySearch Key（可选·留空匿名）" oninput="localStorage.setItem('xiaozhao_anysearch_key',this.value)" style="width:190px">
 <button class="btn btn-p" style="font-size:12px;padding:6px 12px;margin-left:0" onclick="loadSample()">📋 演示数据</button>
-<button class="btn btn-p" style="font-size:12px;padding:6px 12px" onclick="sortData('company')">按公司</button>
-<button class="btn btn-p" style="font-size:12px;padding:6px 12px" onclick="sortData('deadline')">按截止</button>
+<select class="select" id="sortSelect" onchange="changeSort(this.value)"><option value="updated_desc">更新时间：新到旧</option><option value="updated_asc">更新时间：旧到新</option><option value="deadline_asc">截止日期：近到远</option><option value="deadline_desc">截止日期：远到近</option><option value="company_asc">公司名称：A-Z</option><option value="batch_asc">批次名称</option></select>
 <span class="stats" id="stats">共 0 条记录</span>
 </div>
 <div class="hint">📌 <b>使用步骤（必看）</b>：① 先在「行业」下拉选好目标行业（固定 15 类）→ ② 可选：在搜索框填地点/关键词，如「北京」→ ③ 点「🕷 一键爬虫」精准定向抓取。填了关键词则抓取结果<b>只保留匹配项</b>（如填北京只显示北京岗位），留空则抓该行业全部。🔥 一键爬虫(Firecrawl)<b>主选</b>会真实抓取<b>腾讯/阿里巴巴/美团/字节跳动/华为/国家电网/中国石化</b>等126家企业官网招聘页 + <b>16 个企业官方公众号校招推文</b>（已逐一校验发布者为官方招聘号，mp.weixin.qq.com 公开可抓）+ <b>714 家新增公开校招节点</b>（来自公开校招信息聚合，已清洗无效链接），3家综合招聘网站（51job/应届生/国聘）排最后。先加载20个站立即展示，后台继续加载剩余。<b>① AnySearch 第一备用</b>（云端免费·匿名可用·经CORS代理）｜两层本地 CLI 备用：<b>② BrowserAct</b>（专破反爬/验证码）｜<b>③ OpenCLI</b>（覆盖51job全量）。点「🛡 备用工具」看配置与命令。已<b>内置默认 Firecrawl Key</b>，普通学生无需注册直接可用；API Key 仅存本地浏览器。</div>
@@ -149,7 +148,7 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 <button class="btn btn-p" onclick="changePage(-1)">← 上一页</button>
 <span id="pageInfo"></span>
 <button class="btn btn-p" onclick="changePage(1)">下一页 →</button>
-<select class="select" style="margin-left:12px;width:auto" onchange="changePageSize(this.value)">
+<select class="select" id="pageSizeSelect" style="margin-left:12px;width:auto" onchange="changePageSize(this.value)">
 <option value="20">20条/页</option>
 <option value="50">50条/页</option>
 <option value="100">100条/页</option>
@@ -187,7 +186,8 @@ opencli weibo search 招聘
 </div>
 </div>
 <script>
-let D=[],F=[],currentPage=1,pageSize=20;
+let D=[],F=[],currentPage=1,pageSize=20,currentSort="updated_desc";
+const VIEW_STATE_KEY="xiaozhao_radar_view_state_v1";
 const APPLICATIONS_STORAGE_KEY="xiaozhao_radar_applications_v2";
 let applications=[];
 
@@ -1118,7 +1118,9 @@ async function init(){
     if(k){document.getElementById('apiKey').value=k;}
     var ak=localStorage.getItem("xiaozhao_anysearch_key");
     if(ak){document.getElementById('anysearchKey').value=ak;}
-    F=D.slice();render();saveData();
+    restoreViewState();
+    filterData(true);
+    saveData();
     // ★ 后台静默尝试实时更新：仅当没有聚合数据时，才尝试本地代理拉腾讯文档最新数据
     //   普通用户无需理解代理/数据来源，一切自动
     if(!hasAgg){
@@ -1825,14 +1827,16 @@ function render(){
 function changePage(delta){
     currentPage+=delta;
     render();
+    saveViewState();
 }
 function changePageSize(size){
     pageSize=parseInt(size);
     currentPage=1;
     render();
+    saveViewState();
 }
 
-function filterData(){
+function filterData(preservePage){
     var sv=document.getElementById("searchInput").value.toLowerCase();
     var iv=document.getElementById("indFilter").value;
     var sf=document.getElementById("srcFilter").value;
@@ -1851,7 +1855,11 @@ function filterData(){
         var ms6=!uf||(updatedDate&&!isNaN(updatedDate.getTime())&&updatedDate>=cutoff);
         var ms7=!lf||(lf==="official"&&item.a)||(lf==="apply"&&item.u)||(lf==="both"&&item.a&&item.u);
         return ms&&ms2&&ms3&&ms4&&ms5&&ms6&&ms7;
-    });currentPage=1;render();
+    });
+    applySort();
+    if(preservePage!==true)currentPage=1;
+    render();
+    saveViewState();
 }
 
 function clearFilters(){
@@ -1859,11 +1867,49 @@ function clearFilters(){
     filterData();
 }
 
-function sortData(f){
-    D.sort(function(a,b){
-        if(f==="deadline")return(a.d||"").localeCompare(b.d||"");
-        return(a[f]||"").localeCompare(b[f]||"");
-    });F=D.slice();filterData();saveData();toast("排序完成");
+function parseDateValue(value){
+    if(!value)return NaN;
+    var normalized=String(value).trim().replace(/年|月/g,"-").replace(/日/g,"").replace(/[./]/g,"-");
+    var time=Date.parse(normalized);
+    return isNaN(time)?NaN:time;
+}
+
+function compareDates(a,b,field,descending){
+    var av=parseDateValue(a[field]),bv=parseDateValue(b[field]);
+    if(isNaN(av)&&isNaN(bv))return 0;
+    if(isNaN(av))return 1;
+    if(isNaN(bv))return -1;
+    return descending?bv-av:av-bv;
+}
+
+function applySort(){
+    if(currentSort==="updated_desc")F.sort(function(a,b){return compareDates(a,b,"ut",true);});
+    else if(currentSort==="updated_asc")F.sort(function(a,b){return compareDates(a,b,"ut",false);});
+    else if(currentSort==="deadline_asc")F.sort(function(a,b){return compareDates(a,b,"d",false);});
+    else if(currentSort==="deadline_desc")F.sort(function(a,b){return compareDates(a,b,"d",true);});
+    else if(currentSort==="company_asc")F.sort(function(a,b){return(a.c||"").localeCompare(b.c||"","zh-CN");});
+    else if(currentSort==="batch_asc")F.sort(function(a,b){return(a.w||"").localeCompare(b.w||"","zh-CN");});
+}
+
+function changeSort(value){
+    currentSort=value;
+    currentPage=1;
+    filterData();
+}
+
+function saveViewState(){
+    var state={search:document.getElementById("searchInput").value,industry:document.getElementById("indFilter").value,source:document.getElementById("srcFilter").value,education:document.getElementById("eduFilter").value,batch:document.getElementById("batchFilter").value,updated:document.getElementById("updatedFilter").value,link:document.getElementById("linkFilter").value,sort:currentSort,page:currentPage,pageSize:pageSize};
+    localStorage.setItem(VIEW_STATE_KEY,JSON.stringify(state));
+}
+
+function restoreViewState(){
+    var state={};try{state=JSON.parse(localStorage.getItem(VIEW_STATE_KEY)||"{}");}catch(e){}
+    var values={searchInput:state.search,indFilter:state.industry,srcFilter:state.source,eduFilter:state.education,batchFilter:state.batch,updatedFilter:state.updated,linkFilter:state.link,sortSelect:state.sort};
+    Object.keys(values).forEach(function(id){if(values[id]!==undefined&&document.getElementById(id))document.getElementById(id).value=values[id];});
+    currentSort=document.getElementById("sortSelect").value||"updated_desc";
+    pageSize=[20,50,100].includes(Number(state.pageSize))?Number(state.pageSize):20;
+    currentPage=Math.max(1,Number(state.page)||1);
+    document.getElementById("pageSizeSelect").value=String(pageSize);
 }
 
 function csvCell(v){
