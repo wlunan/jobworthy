@@ -97,9 +97,9 @@ python scripts/sync_tencent_docs.py --push
 2. 检查输出统计（总条数、各行业分布）是否正常
 3. 确认 GitHub Pages 部署（`jiabaobei.github.io/xiaozhao-radar/jobs.json` 通常 1-2 分钟生效）
 4. 向用户汇报：「已同步，本次 X 条，较上次 ±Y 条」
-5. 桌面 `校招雷达github发布/index.html` 无需更新（页面打开时自动从 GitHub Pages 读最新 jobs.json）
+5. 确认线上页面正常（`jiabaobei.github.io/xiaozhao-radar/` 打开后自动读取最新 `jobs.json`）
 
-> 💡 用户双击本地 HTML 也能看到最新数据——因为 GitHub Pages 返回 `Access-Control-Allow-Origin: *`，跨域读取无障碍，无需重新下载 HTML。
+> 💡 页面仅通过链接（GitHub Pages）访问，不存在本地 HTML 的使用方式；前端代码拆分/引入构建工具时无需保留 `file://` 直开兼容。
 
 ---
 

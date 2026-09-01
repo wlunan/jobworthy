@@ -145,11 +145,14 @@ opencli xiaozhao search "2027 校招" -f json > xiaozhao.json
 
 ```
 xiaozhao-radar/
-├── index.html                   # GitHub Pages 与本地页面入口
+├── index.html                   # GitHub Pages 页面入口（HTML 结构）
 ├── jobs.json                    # 页面默认加载的聚合数据
+├── assets/
+│   ├── js/                      # 前端 ES Modules：app.js 主逻辑 / sites.js 爬虫站点配置 / sample-data.js 样例数据
+│   ├── index.css                # 招聘机会页样式
+│   └── ui.css                   # 公共 UI 样式
 ├── scripts/                     # 离线数据同步脚本
 ├── tools/                       # 本地辅助工具（CORS 代理）
-├── assets/                      # 视频等静态资源
 ├── docs/                        # 项目导读与同步说明
 ├── archive/                     # 旧页面和历史数据，仅供参考
 ├── README.md                    # 说明文档
