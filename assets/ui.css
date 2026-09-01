@@ -176,8 +176,8 @@ tbody td{color:#3d4755}
 .exclude-btn:focus-visible{outline:3px solid rgba(82,103,184,.22);outline-offset:2px;border-radius:4px}
 .cell-expand{display:flex;align-items:flex-start;gap:6px;width:100%;max-width:340px;padding:2px 0;border:0;background:transparent;color:#3d4755;font:inherit;line-height:1.45;text-align:left;cursor:pointer}
 .industry-expand{max-width:220px;color:#596270}
-.cell-expand-text{display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2}
-.cell-expand[aria-expanded="true"] .cell-expand-text{display:block}
+.cell-expand-text{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell-expand[aria-expanded="true"] .cell-expand-text{overflow:visible;white-space:normal}
 .cell-expand svg{flex:0 0 auto;width:14px;height:14px;margin-top:3px;color:var(--ui-muted);transition:transform .16s}
 .cell-expand[aria-expanded="true"] svg{transform:rotate(180deg)}
 .cell-expand:hover .cell-expand-text{text-decoration:underline;text-decoration-color:#c9c2b8;text-underline-offset:3px}

@@ -1572,8 +1572,19 @@ function esc(s){
 }
 
 function toggleCellExpand(button){
+    if(button.dataset.truncated!=='true') return;
     var expanded=button.getAttribute("aria-expanded")==="true";
-    button.setAttribute("aria-expanded",String(!expanded));
+    var next=!expanded;
+    button.setAttribute("aria-expanded",String(next));
+    button.querySelector('.cell-expand-text').textContent=next?button.dataset.full:button.dataset.preview;
+}
+
+function collapsibleCell(value, limit, className){
+    var text=String(value||"-");
+    var truncated=text.length>limit;
+    var preview=truncated?text.slice(0,limit)+"…":text;
+    var classes="cell-expand"+(className?" "+className:"");
+    return '<button type="button" class="'+classes+'" aria-expanded="false" data-truncated="'+truncated+'" data-full="'+esc(text)+'" data-preview="'+esc(preview)+'" title="'+esc(text)+'" onclick="toggleCellExpand(this)"><span class="cell-expand-text">'+esc(preview)+'</span>'+(truncated?'<i data-lucide="chevron-down"></i>':'')+'</button>';
 }
 
 function renderIcons(){
@@ -1582,7 +1593,7 @@ function renderIcons(){
 
 function editCell(cell,idx,f){
     var inp=document.createElement("input");
-    inp.type="text";inp.value=cell.textContent||"";
+    inp.type="text";inp.value=cell.dataset.full||cell.textContent||"";
     inp.style.cssText="width:100%;border:none;outline:none;background:#fff8e1;font-size:13px";
     if(cell.classList) cell.classList.remove("cell-expand");
     cell.style.whiteSpace="normal";cell.style.overflow="visible";cell.style.textOverflow="clip";
@@ -1618,8 +1629,8 @@ function render(){
         h+='<tr>';
         h+='<td style="color:#9ca3b6;font-size:12px">'+(realIdx+1)+'</td>';
         h+='<td><span class="cname" ondblclick="editCell(this,'+realIdx+',\'c\')">'+(item.c||"-")+'</span></td>';
-        h+='<td><button type="button" class="cell-expand" aria-expanded="false" title="'+esc(item.p)+'" onclick="toggleCellExpand(this)" ondblclick="editCell(this,'+realIdx+',\'p\')"><span class="cell-expand-text">'+esc(item.p||"-")+'</span><i data-lucide="chevron-down"></i></button></td>';
-        h+='<td><button type="button" class="cell-expand industry-expand" aria-expanded="false" title="'+esc(item.ind)+'" onclick="toggleCellExpand(this)"><span class="cell-expand-text">'+esc(item.ind||"-")+'</span><i data-lucide="chevron-down"></i></button></td>';
+        h+='<td>'+collapsibleCell(item.p,32,'')+'</td>';
+        h+='<td>'+collapsibleCell(item.ind,20,'industry-expand')+'</td>';
         h+='<td><span ondblclick="editCell(this,'+realIdx+',\'ut\')">'+(item.ut||"-")+'</span></td>';
         h+='<td><span ondblclick="editCell(this,'+realIdx+',\'w\')">'+(item.w||"-")+'</span></td>';
         h+='<td><span ondblclick="editCell(this,'+realIdx+',\'l\')">'+(item.l||"-")+'</span></td>';
