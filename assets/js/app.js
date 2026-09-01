@@ -437,6 +437,14 @@ function addToApplications(encodedKey,status){
             toast("已移回投递管理");
             return;
         }
+        if(status==="已排除"&&existing.status!=="已排除"){
+            existing.status="已排除";
+            existing.updatedAt=new Date().toISOString();
+            saveApplications();
+            render();
+            toast("已标记为不考虑");
+            return;
+        }
         window.location.href="applications.html";
         return;
     }
@@ -458,11 +466,6 @@ function addToApplications(encodedKey,status){
     saveApplications();
     render();
     toast(status==="已排除"?"已标记为不考虑":"已加入投递管理");
-}
-
-function addRow(){
-    D.unshift({c:"",p:"",l:"",w:"",d:"",s:"",t:"互联网",ds:DEFAULT_DATA_SOURCE,u:""});F=D.slice();render();saveData();
-    toast("已添加新行，双击编辑");
 }
 
 function clearAll(){
@@ -546,7 +549,18 @@ function render(){
         var encodedKey=encodeURIComponent(jobKey(item)).replace(/'/g,"%27");
         var managed=isManaged(item);
         var excluded=isExcluded(item);
-        h+='<td><div class="manage-actions"><button class="manage-btn'+(managed&&!excluded?' added':'')+'" onclick="addToApplications(\''+encodedKey+'\')">'+(excluded?'加入管理':managed?'已加入 · 查看':'加入管理')+'</button><button class="exclude-btn'+(excluded?' added':'')+'" onclick="addToApplications(\''+encodedKey+'\',\'已排除\')" '+(managed?'disabled':'')+'>已排除</button></div></td>';
+        var actionsHtml;
+        if(!managed){
+            // 未管理：加入管理（主） + 不考虑（次）
+            actionsHtml='<button class="manage-btn" onclick="addToApplications(\''+encodedKey+'\')">加入管理</button><button class="exclude-btn" onclick="addToApplications(\''+encodedKey+'\',\'已排除\')" title="标记为不考虑，不再关注">不考虑</button>';
+        }else if(excluded){
+            // 已排除：状态标签 + 恢复动作
+            actionsHtml='<span class="tag tag-s">已排除</span><button class="manage-btn" onclick="addToApplications(\''+encodedKey+'\')" title="恢复为准备投递">恢复</button>';
+        }else{
+            // 已加入：状态按钮（跳转投递页） + 不考虑（可用，修复原先 disabled 死路）
+            actionsHtml='<button class="manage-btn added" onclick="window.location.href=\'applications.html\'">已加入 · 查看</button><button class="exclude-btn" onclick="addToApplications(\''+encodedKey+'\',\'已排除\')" title="标记为不考虑">不考虑</button>';
+        }
+        h+='<td><div class="manage-actions">'+actionsHtml+'</div></td>';
         h+='</tr>';
     });
     tb.innerHTML=h;
@@ -741,7 +755,7 @@ function toast(msg){
 
 // ===== ES module mount: inline HTML handlers need these on window =====
 Object.assign(window, {
-    addRow, exportExcel, handleImport, clearAll,
+    exportExcel, handleImport, clearAll,
     onSearchFieldChange, filterData, clearFilters,
     changeSort, changePage, changePageSize,
     editCell, addToApplications, toggleCellExpand, startCrawl

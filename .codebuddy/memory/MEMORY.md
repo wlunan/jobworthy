@@ -3,6 +3,9 @@
 ## 使用方式（2026-09-01 用户澄清）
 - xiaozhao-radar 仅通过链接（GitHub Pages）访问，**不存在本地双击 HTML 的使用方式**。前端架构演进（ES Modules 拆分、构建工具、框架）无需保留 `file://` 直开兼容；docs/SYNC.md 已按此更新。
 
+## 用户设计偏好
+- 按钮文案用动词、状态用标签展示；不倾向在表格里放"添加行"这类编辑型按钮；禁用（disabled）按钮要提供替代路径，否则视为设计缺陷。
+
 ## 项目约定
 - 版本变更惯例：README.md 顶部加「核心亮点」小节 + 「更新日志」条目 + 升级版本徽章，index.html 顶栏版本号同步。
 - 数据链路：scripts/sync_tencent_docs.py（每周五，触发词「同步校招」）→ jobs.json → GitHub Pages；页面 fetch jobs.json，兜底 localStorage。
