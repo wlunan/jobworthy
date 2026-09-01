@@ -1,11 +1,11 @@
-// 校招雷达 · 本地 CORS 代理（Node.js，10 行核心）
+// 职得 · 本地 CORS 代理（Node.js，10 行核心）
 // 用法：node tools/proxy.js   →   http://localhost:8787
 // 用途：
 //  1) AnySearch 兜底：页面自动检测本代理优先使用（比公共代理稳定、无第三方中转）
 // 想换端口：node tools/proxy.js 9090
 const http = require('http'), https = require('https'), { URL } = require('url');
 const PORT = parseInt(process.argv[2] || '8787', 10);
-// Origin 白名单：仅允许校招雷达页面和本地开发访问，防止被外部滥用
+// Origin 白名单：仅允许职得页面和本地开发访问，防止被外部滥用
 const ALLOWED_ORIGINS = ['null', '', 'http://localhost', 'http://127.0.0.1', 'file://'];
 function isOriginAllowed(origin) {
   if (!origin) return true; // 无 Origin 头的请求（如 curl）允许通过

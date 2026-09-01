@@ -1,6 +1,6 @@
-# xiaozhao-radar
+# JobWorthy
 
-**AI-driven campus recruitment aggregator.**  
+**AI-driven job search aggregator.**  
 Crawls 100+ company career pages (top internet firms + state-owned enterprises) and presents them in a searchable, filterable dashboard. No backend required — runs entirely in the browser.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
@@ -12,7 +12,7 @@ Crawls 100+ company career pages (top internet firms + state-owned enterprises) 
 ## Why this exists
 
 Campus recruitment information is scattered across 100+ company career pages. Fresh graduates spend hours checking each site manually.  
-**xiaozhao-radar** automates the crawl and presents everything in one searchable table with category filters, pagination, and batch import.
+**JobWorthy** automates the crawl and presents everything in one searchable table with category filters, pagination, and batch import.
 
 ## Quick start
 
@@ -82,4 +82,4 @@ Apache 2.0
 ## Star history
 
 If this tool saves you time, a star is the best support.  
-GitHub: https://github.com/jiabaobei/xiaozhao-radar
+GitHub: https://github.com/wlunan/jobworthy

@@ -1,4 +1,4 @@
-# 校招雷达 · 跨设备恢复说明
+# 职得 · 跨设备恢复说明
 
 ## 数据源
 - 腾讯文档（智能表格）: https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ
@@ -19,7 +19,7 @@
 - e 固定为空
 
 ## 同步脚本
-- GitHub 仓库: https://github.com/jiabaobei/xiaozhao-radar
+- GitHub 仓库: https://github.com/wlunan/jobworthy
 - 脚本文件: scripts/sync_tencent_docs.py（纯标准库）
 - 详细文档: docs/SYNC.md
 

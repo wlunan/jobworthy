@@ -1,4 +1,4 @@
-// Xiaozhao Radar main logic (state / render / filter / crawl / applications / import-export)
+// JobWorthy main logic (state / render / filter / crawl / applications / import-export)
 import { CRAWL_SITES } from "./sites.js";
 
 let D=[],F=[],currentPage=1,pageSize=20,currentSort="updated_desc";
@@ -29,7 +29,7 @@ async function loadRemoteJobs(){
             return {jobs: arr, updated: (obj && obj.updated) || ""};
         }
     }catch(e){
-        console.warn("[校招雷达] jobs.json 加载失败，尝试本地缓存：", e && e.message);
+        console.warn("[职得] jobs.json 加载失败，尝试本地缓存：", e && e.message);
     }
     return null;
 }
@@ -46,7 +46,7 @@ async function init(){
         if(remote.updated){
             try{localStorage.setItem(DATA_UPDATED_KEY, remote.updated);}catch(e){}
         }
-        console.log("[校招雷达] 已从 jobs.json 加载 "+D.length+" 条聚合数据");
+        console.log("[职得] 已从 jobs.json 加载 "+D.length+" 条聚合数据");
     } else {
         // 2) 兜底：localStorage 已保存的用户数据
         var saved=localStorage.getItem("xiaozhao_radar_data");

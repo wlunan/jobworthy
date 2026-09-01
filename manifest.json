@@ -1,23 +1,23 @@
 {
-  "name": "xiaozhao-radar",
+  "name": "jobworthy",
   "version": "2.4.1",
-  "description": "Xiaozhao Radar - Campus Recruitment Radar, real-time job data via Firecrawl",
+  "description": "JobWorthy - Job search aggregation radar, real-time job data via Firecrawl",
   "main": "index.html",
   "scripts": {
     "start": "Open index.html in browser"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jiabaobei/xiaozhao-radar"
+    "url": "https://github.com/wlunan/jobworthy"
   },
   "keywords": [
-    "xiaozhao",
-    "campus-recruitment",
+    "jobworthy",
+    "job-search",
     "jobs",
     "crawler",
     "firecrawl",
     "MCP"
   ],
-  "author": "jiabaobei",
+  "author": "wlunan",
   "license": "Apache-2.0"
 }

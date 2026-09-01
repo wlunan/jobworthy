@@ -1,6 +1,6 @@
-# 校招雷达 - Xiaozhao Radar
+# 职得 - JobWorthy
 
-> **🔍 AI驱动的校招信息聚合平台 —— 856 家央企/互联网大厂/各行业企业校招节点实时抓取，分批加载+分页浏览。**
+> **🔍 AI驱动的求职信息聚合平台 —— 856 家央企/互联网大厂/各行业企业招聘节点实时抓取，分批加载+分页浏览。**
 
 [![Version](https://img.shields.io/badge/version-2.4.2-blue)]()
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)]()
@@ -125,7 +125,7 @@ npm install -g @jackwener/opencli
 # 爬校招数据（复用 Chrome 登录态 + Browser Bridge 插件）
 opencli xiaozhao search "2027 校招" -f json > xiaozhao.json
 
-# 校招雷达点「📤 导入」选 xiaozhao.json
+# 职得点「📤 导入」选 xiaozhao.json
 ```
 
 可选参数：`--city 成都` `--degree 本科` `--limit 30`；另有 `opencli xiaohongshu search 校招`、`opencli weibo search 招聘` 适配器。
@@ -144,7 +144,7 @@ opencli xiaozhao search "2027 校招" -f json > xiaozhao.json
 ## 📁 文件结构
 
 ```
-xiaozhao-radar/
+jobworthy/
 ├── index.html                   # GitHub Pages 页面入口（HTML 结构）
 ├── jobs.json                    # 页面默认加载的聚合数据
 ├── assets/

@@ -1,6 +1,6 @@
-# 校招雷达 · 数据同步工作流（腾讯文档 → GitHub）
+# 职得 · 数据同步工作流（腾讯文档 → GitHub）
 
-> 本文件记录「校招雷达」页面数据的**自动同步方案**：每周读取腾讯文档智能表格 → 生成 `jobs.json` → 推送 GitHub Pages → 页面自动显示最新数据。
+> 本文件记录「职得」页面数据的**自动同步方案**：每周读取腾讯文档智能表格 → 生成 `jobs.json` → 推送 GitHub Pages → 页面自动显示最新数据。
 > 数据链路于 2026-08-04 首次打通并验证，2026-08-05 固化为可复用脚本。
 
 ---
@@ -95,9 +95,9 @@ python scripts/sync_tencent_docs.py --push
 
 1. 运行 `python scripts/sync_tencent_docs.py --push`
 2. 检查输出统计（总条数、各行业分布）是否正常
-3. 确认 GitHub Pages 部署（`jiabaobei.github.io/xiaozhao-radar/jobs.json` 通常 1-2 分钟生效）
+3. 确认 GitHub Pages 部署（`wlunan.github.io/jobworthy/jobs.json` 通常 1-2 分钟生效）
 4. 向用户汇报：「已同步，本次 X 条，较上次 ±Y 条」
-5. 确认线上页面正常（`jiabaobei.github.io/xiaozhao-radar/` 打开后自动读取最新 `jobs.json`）
+5. 确认线上页面正常（`wlunan.github.io/jobworthy/` 打开后自动读取最新 `jobs.json`）
 
 > 💡 页面仅通过链接（GitHub Pages）访问，不存在本地 HTML 的使用方式；前端代码拆分/引入构建工具时无需保留 `file://` 直开兼容。
 

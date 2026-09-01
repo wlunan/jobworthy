@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-校招雷达 · 腾讯文档智能表格 → jobs.json 同步脚本
+职得 · 腾讯文档智能表格 → jobs.json 同步脚本
 =================================================
 数据链路（已验证，2026-08-04 完成对接）：
   腾讯文档智能表格「27届实习提前批信息汇总」
@@ -15,7 +15,7 @@
         └─ base64 → zlib raw deflate 解压 → JSON（rows[0]=[meta,data]）
               └─ meta.c.k3.k3 字段定义 / data.c.k2.k1 记录值
 
-输出：仓库根目录 jobs.json  ——  GitHub Pages(jiabaobei.github.io/xiaozhao-radar/jobs.json)
+输出：仓库根目录 jobs.json  ——  GitHub Pages(wlunan.github.io/jobworthy/jobs.json)
       以 Access-Control-Allow-Origin:* 提供，页面(含本地双击 HTML)自动跨域读取最新数据。
 
 用法：
