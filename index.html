@@ -12,6 +12,7 @@
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:#eef1f6;color:#1f2937;min-height:100vh;font-size:15px}
 .top-bar{background:linear-gradient(135deg,#5b6ef5,#7c3aed);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(91,110,245,.25)}
 .top-bar h1{font-size:19px;font-weight:600;letter-spacing:.5px}
+.top-nav{display:flex;gap:6px;margin-left:18px}.top-nav a{color:rgba(255,255,255,.78);text-decoration:none;padding:7px 11px;border-radius:7px;font-size:13px;font-weight:600}.top-nav a.active,.top-nav a:hover{background:rgba(255,255,255,.18);color:#fff}
 .toolbar{background:#fff;border-bottom:1px solid #eceef3;padding:12px 24px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .s-input,.key-input,.select{padding:8px 12px;border:1px solid #dfe3ea;border-radius:8px;font-size:14px;background:#fbfcfe;transition:border-color .15s,box-shadow .15s}
 .s-input{width:280px}
@@ -35,11 +36,7 @@ tbody td{padding:11px 16px;vertical-align:middle;color:#374151}
 .edu-b{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;background:#f1f5f9;color:#475569;white-space:nowrap}
 .del-btn{background:0 0;border:0;color:#cbd2dc;cursor:pointer;font-size:16px;padding:2px 6px;transition:color .15s}
 .del-btn:hover{color:#ef4444}
-.track-select,.note-input{width:100%;min-width:96px;padding:6px 8px;border:1px solid #dfe3ea;border-radius:7px;background:#fff;font-size:12px;color:#374151}
-.track-select:focus,.note-input:focus{outline:0;border-color:#7c3aed;box-shadow:0 0 0 2px rgba(124,58,237,.1)}
-.track-select[data-status="已投递"],.track-select[data-status="笔试"],.track-select[data-status="面试"]{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
-.track-select[data-status="Offer"]{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
-.note-input{min-width:150px}
+.manage-btn{border:1px solid #c7d2fe;background:#eef2ff;color:#4338ca;border-radius:7px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}.manage-btn:hover{background:#4338ca;color:#fff}.manage-btn.added{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
 #empty{text-align:center;padding:70px 20px;background:#fff;margin:20px 24px;border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 8px 24px rgba(16,24,40,.06)}
 #empty .icon{font-size:60px;margin-bottom:14px}
 #empty h3{color:#475569;font-size:18px;margin-bottom:8px}
@@ -90,7 +87,7 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 <div class="pbar"><div class="pfill" id="pfill"></div></div>
 </div>
 <div class="top-bar">
-<h1>📊 Xiaozhao Radar - 校招雷达 <span style="font-size:12px;background:rgba(255,255,255,.25);padding:3px 10px;border-radius:999px;font-weight:600;vertical-align:middle">v2.3.0</span></h1>
+<div style="display:flex;align-items:center"><h1>📊 Xiaozhao Radar - 校招雷达 <span style="font-size:12px;background:rgba(255,255,255,.25);padding:3px 10px;border-radius:999px;font-weight:600;vertical-align:middle">v2.3.0</span></h1><nav class="top-nav"><a class="active" href="index.html">招聘机会</a><a href="applications.html">我的投递</a></nav></div>
 <div>
 <button class="btn btn-p" onclick="startCrawl()">🕷 一键爬虫(Firecrawl主选)</button>
 <button class="btn btn-o" style="background:#0ea5e9;color:#fff" onclick="showToolHelp()">🛡 备用工具(BrowserAct/OpenCLI)</button>
@@ -129,6 +126,10 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 <option value="其他">其他</option>
 </select>
 <select class="select" id="eduFilter" onchange="filterData()"><option value="">全部学历</option><option value="本科及以上">本科及以上</option><option value="硕士及以上">硕士及以上</option></select>
+<input type="text" class="select" id="batchFilter" placeholder="批次筛选" oninput="filterData()" style="width:120px">
+<select class="select" id="updatedFilter" onchange="filterData()"><option value="">全部更新时间</option><option value="1">最近1天</option><option value="3">最近3天</option><option value="7">最近7天</option><option value="30">最近30天</option></select>
+<select class="select" id="linkFilter" onchange="filterData()"><option value="">全部链接</option><option value="official">有官方公告</option><option value="apply">有投递链接</option><option value="both">公告和投递均有</option></select>
+<button class="btn btn-p" style="font-size:12px;padding:6px 12px;margin-left:0" onclick="clearFilters()">清空筛选</button>
 <input type="password" class="key-input" id="apiKey" placeholder="Firecrawl Key（已内置默认·留空即用）" oninput="localStorage.setItem('xiaozhao_firecrawl_key',this.value)">
 <input type="password" class="key-input" id="anysearchKey" placeholder="AnySearch Key（可选·留空匿名）" oninput="localStorage.setItem('xiaozhao_anysearch_key',this.value)" style="width:190px">
 <button class="btn btn-p" style="font-size:12px;padding:6px 12px;margin-left:0" onclick="loadSample()">📋 演示数据</button>
@@ -141,7 +142,7 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 <div id="crawlProgress" style="display:none;margin:10px 20px;padding:12px 16px;background:#f0f4ff;border-radius:8px;color:#4338ca;font-size:13px;box-shadow:0 1px 4px rgba(91,110,245,.15)"><b>⏳ 正在爬取中...</b><span id="cpText"></span></div>
 <div id="empty"><div class="icon">📭</div><h3>还没有数据</h3><p id="emptyHint">已内置默认 Firecrawl Key。<b>使用步骤</b>：① 先选「行业」（如银行金融）→ ② 可选：搜索框填「北京」等地点/关键词 → ③ 点「🕷 一键爬虫」定向抓取（也可填自己的 Key 覆盖）<br><small style="color:#999">或点击「📋 演示数据」查看示例（不会联网）</small></p></div>
 <div class="table-wrap"><table id="dataTable" style="display:none">
-<thead><tr><th style="width:44px">#</th><th>公司</th><th>职位 / 标题</th><th>更新时间</th><th>批次</th><th>地点</th><th>学历</th><th>截止日期</th><th>官方公告</th><th>投递链接</th><th>来源</th><th>进度</th><th>个人备注</th><th style="width:44px"></th></tr></thead>
+<thead><tr><th style="width:44px">#</th><th>公司</th><th>职位 / 标题</th><th>更新时间</th><th>批次</th><th>地点</th><th>学历</th><th>截止日期</th><th>官方公告</th><th>投递链接</th><th>来源</th><th>投递管理</th><th style="width:44px"></th></tr></thead>
 <tbody id="tbody"></tbody>
 </table></div>
 <div id="pagination" style="display:none">
@@ -187,9 +188,8 @@ opencli weibo search 招聘
 </div>
 <script>
 let D=[],F=[],currentPage=1,pageSize=20;
-const TRACKING_STORAGE_KEY="xiaozhao_radar_tracking_v1";
-const TRACKING_STATUSES=["未跟进","已收藏","已投递","笔试","面试","Offer","已结束"];
-let tracking={};
+const APPLICATIONS_STORAGE_KEY="xiaozhao_radar_applications_v2";
+let applications=[];
 
 // 项目内置默认 Firecrawl Key（作者免费额度）：普通学生开箱即用，无需注册
 // 用户在上方输入框填入自己的 Key 后会覆盖此默认值；留空则用内置默认 Key
@@ -1101,7 +1101,7 @@ async function loadRemoteJobs(){
 
 async function init(){
     var hasAgg = false;
-    loadTracking();
+    loadApplications();
     // 1) 首选：GitHub Pages 上每周五同步的聚合数据（打通同步闭环）
     var remote = await loadRemoteJobs();
     if(remote && remote.length){
@@ -1705,25 +1705,45 @@ function jobKey(item){
     return [item.c||"",item.p||"",item.l||"",item.u||""].join("|");
 }
 
-function loadTracking(){
+function loadApplications(){
     try{
-        var saved=JSON.parse(localStorage.getItem(TRACKING_STORAGE_KEY)||"{}");
-        tracking=saved&&typeof saved==="object"&&!Array.isArray(saved)?saved:{};
-    }catch(e){tracking={};}
+        var saved=JSON.parse(localStorage.getItem(APPLICATIONS_STORAGE_KEY)||"[]");
+        applications=Array.isArray(saved)?saved:(Array.isArray(saved.applications)?saved.applications:[]);
+    }catch(e){applications=[];}
 }
 
-function trackingFor(item){
-    return tracking[jobKey(item)]||{status:"未跟进",note:"",updatedAt:""};
+function saveApplications(){
+    localStorage.setItem(APPLICATIONS_STORAGE_KEY,JSON.stringify(applications));
 }
 
-function updateTracking(encodedKey,field,value){
+function isManaged(item){
+    var key=jobKey(item);
+    return applications.some(function(app){return app.jobKey===key;});
+}
+
+function addToApplications(encodedKey){
     var key=decodeURIComponent(encodedKey);
-    var current=tracking[key]||{status:"未跟进",note:"",updatedAt:""};
-    current[field]=value;
-    current.updatedAt=new Date().toISOString();
-    tracking[key]=current;
-    localStorage.setItem(TRACKING_STORAGE_KEY,JSON.stringify(tracking));
-    if(field==="status") render();
+    var item=D.find(function(job){return jobKey(job)===key;});
+    if(!item){toast("未找到岗位");return;}
+    if(isManaged(item)){window.location.href="applications.html";return;}
+    var now=new Date().toISOString();
+    applications.unshift({
+        id:(window.crypto&&crypto.randomUUID)?crypto.randomUUID():(Date.now()+"-"+Math.random().toString(16).slice(2)),
+        jobKey:key,
+        company:item.c||"",
+        position:item.p||"",
+        channel:"官网",
+        status:"准备投递",
+        appliedAt:"",
+        firstInterviewAt:"",
+        note:"",
+        job:{location:item.l||"",batch:item.w||"",jobUpdatedAt:item.ut||"",deadline:item.d||"",announcementUrl:item.a||"",applyUrl:item.u||"",source:item.s||""},
+        createdAt:now,
+        updatedAt:now
+    });
+    saveApplications();
+    render();
+    toast("已加入投递管理");
 }
 
 function addRow(){
@@ -1793,12 +1813,9 @@ function render(){
         h+='<td>'+(safeUrl?'<a class="link-btn" href="'+safeUrl+'" target="_blank" rel="noopener noreferrer">投递</a>':'-')+'</td>';
         var sourceLabel=item.s==="校招信息聚合平台"?"表格":(item.s||"-");
         h+='<td><span class="'+cls+'">'+sourceLabel+'</span></td>';
-        var track=trackingFor(item);
         var encodedKey=encodeURIComponent(jobKey(item)).replace(/'/g,"%27");
-        h+='<td><select class="track-select" data-status="'+esc(track.status)+'" onchange="updateTracking(\''+encodedKey+'\',\'status\',this.value)">';
-        TRACKING_STATUSES.forEach(function(status){h+='<option value="'+status+'"'+(track.status===status?' selected':'')+'>'+status+'</option>';});
-        h+='</select></td>';
-        h+='<td><input class="note-input" value="'+esc(track.note)+'" placeholder="点击填写备注" onchange="updateTracking(\''+encodedKey+'\',\'note\',this.value)"></td>';
+        var managed=isManaged(item);
+        h+='<td><button class="manage-btn'+(managed?' added':'')+'" onclick="addToApplications(\''+encodedKey+'\')">'+(managed?'已加入 · 查看':'加入管理')+'</button></td>';
         h+='<td><button class="del-btn" onclick="delRow('+realIdx+')">×</button></td>';
         h+='</tr>';
     });
@@ -1820,13 +1837,26 @@ function filterData(){
     var iv=document.getElementById("indFilter").value;
     var sf=document.getElementById("srcFilter").value;
     var ef=document.getElementById("eduFilter").value;
+    var bf=document.getElementById("batchFilter").value.toLowerCase();
+    var uf=parseInt(document.getElementById("updatedFilter").value||"0",10);
+    var lf=document.getElementById("linkFilter").value;
+    var cutoff=uf?new Date(Date.now()-uf*86400000):null;
     F=D.filter(function(item){
         var ms=!sv||(item.c||"").toLowerCase().includes(sv)||(item.p||"").toLowerCase().includes(sv)||(item.l||"").toLowerCase().includes(sv);
         var ms4=!iv||!item.ind||item.ind===iv;
         var ms2=!sf||!item.t||item.t===sf;
         var ms3=!ef||item.e===ef;
-        return ms&&ms2&&ms3&&ms4;
+        var ms5=!bf||(item.w||"").toLowerCase().includes(bf);
+        var updatedDate=item.ut?new Date(item.ut):null;
+        var ms6=!uf||(updatedDate&&!isNaN(updatedDate.getTime())&&updatedDate>=cutoff);
+        var ms7=!lf||(lf==="official"&&item.a)||(lf==="apply"&&item.u)||(lf==="both"&&item.a&&item.u);
+        return ms&&ms2&&ms3&&ms4&&ms5&&ms6&&ms7;
     });currentPage=1;render();
+}
+
+function clearFilters(){
+    ["searchInput","indFilter","srcFilter","eduFilter","batchFilter","updatedFilter","linkFilter"].forEach(function(id){document.getElementById(id).value="";});
+    filterData();
 }
 
 function sortData(f){
@@ -1845,8 +1875,8 @@ function csvCell(v){
 }
 function exportExcel(){
     if(!F.length){toast("没有数据");return;}
-    var h=["序号","公司","职位","岗位更新时间","批次","地点","学历","截止日期","官方公告","投递链接","来源","投递进度","个人备注","跟进更新时间"];
-    var rows=[];F.forEach(function(item,i){var track=trackingFor(item);rows.push([i+1,item.c,item.p,item.ut,item.w,item.l,item.e,item.d,item.a,item.u,item.s,track.status,track.note,track.updatedAt]);});
+    var h=["序号","公司","职位","岗位更新时间","批次","地点","学历","截止日期","官方公告","投递链接","来源"];
+    var rows=[];F.forEach(function(item,i){rows.push([i+1,item.c,item.p,item.ut,item.w,item.l,item.e,item.d,item.a,item.u,item.s]);});
     var csv=h.map(csvCell).join(",")+"\n";rows.forEach(function(r){csv+=r.map(csvCell).join(",")+"\n";});
     var a=document.createElement("a");a.href="data:text/csv;charset=utf-8,\uFEFF"+encodeURIComponent(csv);a.download="xiaozhao-radar-data.csv";a.click();
     toast("已导出CSV");

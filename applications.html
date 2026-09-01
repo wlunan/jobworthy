@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>我的投递 · 校招雷达</title>
+<link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css">
+<style>
+:root{--ink:#172033;--muted:#68738a;--line:#dde3ec;--paper:#f5f7fa;--green:#087f5b;--green-soft:#e6f6ef;--navy:#14213d;--amber:#e9a23b}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",sans-serif}
+.mast{background:var(--navy);color:#fff;padding:18px 28px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 5px 18px rgba(20,33,61,.18)}
+.brand{display:flex;align-items:center;gap:22px}.brand h1{font-family:Georgia,"Songti SC",serif;font-size:22px;margin:0;letter-spacing:.5px}.nav{display:flex;gap:5px}.nav a{color:#b9c3d8;text-decoration:none;padding:8px 12px;border-radius:7px;font-size:13px;font-weight:700}.nav a:hover,.nav a.active{color:#fff;background:rgba(255,255,255,.11)}
+.privacy{font-size:12px;color:#cbd4e5;max-width:380px;text-align:right;line-height:1.55}.page{padding:24px 28px 38px;max-width:1800px;margin:auto}
+.hero{display:grid;grid-template-columns:minmax(320px,1fr) auto;gap:20px;align-items:end;margin-bottom:18px}.hero h2{font-family:Georgia,"Songti SC",serif;font-size:30px;margin:0 0 6px}.hero p{margin:0;color:var(--muted);font-size:13px}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+button,.import-label,select{font:inherit}.btn,.import-label{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 13px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 1px 2px rgba(23,32,51,.05)}.btn:hover,.import-label:hover{border-color:#aeb8c8;background:#fbfcfe}.btn.primary{background:var(--green);border-color:var(--green);color:#fff}.btn.danger{color:#b42318}.import-label input{display:none}
+.mode{border:1px solid var(--line);background:#fff;padding:9px 10px;border-radius:8px;color:var(--muted);font-size:13px}
+.summary{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;margin:0 0 16px}.metric{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 15px;position:relative;overflow:hidden}.metric:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green)}.metric .n{font-family:Georgia,serif;font-size:25px;font-weight:700}.metric .label{font-size:12px;color:var(--muted);margin-top:2px}
+.table-shell{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;box-shadow:0 8px 30px rgba(23,32,51,.06)}
+.empty-note{padding:8px 4px 14px;color:var(--muted);font-size:12px}.toast{position:fixed;right:24px;bottom:24px;background:var(--navy);color:#fff;padding:11px 16px;border-radius:8px;opacity:0;transform:translateY(12px);transition:.2s;pointer-events:none;z-index:1000}.toast.show{opacity:1;transform:none}
+.tabulator{border:0;background:#fff;font-size:13px}.tabulator .tabulator-header{border:0;border-bottom:1px solid var(--line);background:#f8fafc}.tabulator .tabulator-header .tabulator-col{background:#f8fafc;border-right:1px solid #edf0f4}.tabulator-row{border-bottom:1px solid #eef1f5}.tabulator-row.tabulator-row-even{background:#fbfcfd}.tabulator-row:hover{background:#f1f8f5!important}.tabulator-cell{border-right:1px solid #f0f2f5!important}.status-pill{display:inline-block;padding:3px 8px;border-radius:99px;background:var(--green-soft);color:var(--green);font-weight:700;font-size:11px}.row-delete{border:0;background:transparent;color:#9aa4b5;cursor:pointer;font-size:16px}.row-delete:hover{color:#d92d20}.job-link{color:#3659b5;text-decoration:none;font-weight:700}.job-link:hover{text-decoration:underline}
+@media(max-width:900px){.mast,.hero{display:block}.privacy{display:none}.nav{margin-top:12px}.actions{justify-content:flex-start;margin-top:16px}.summary{grid-template-columns:repeat(2,1fr)}.page{padding:18px 12px}.mast{padding:16px}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="brand"><h1>校招雷达 · 投递工作台</h1><nav class="nav"><a href="index.html">招聘机会</a><a class="active" href="applications.html">我的投递</a></nav></div>
+  <div class="privacy">数据仅保存在当前浏览器。请定期导出 JSON 备份，以便换设备或清理浏览器后恢复。</div>
+</header>
+<main class="page">
+  <section class="hero">
+    <div><h2>把机会推进成结果</h2><p>直接编辑单元格；点击列标题菜单可筛选，原岗位详情列默认隐藏。</p></div>
+    <div class="actions">
+      <button class="btn primary" id="addBtn">＋ 新建记录</button>
+      <button class="btn" id="toggleDetailsBtn">显示岗位详情列</button>
+      <button class="btn" id="exportJsonBtn">导出 JSON 备份</button>
+      <button class="btn" id="exportCsvBtn">导出 CSV 表格</button>
+      <select class="mode" id="importMode"><option value="merge">导入时合并</option><option value="replace">导入时覆盖</option></select>
+      <label class="import-label">导入 JSON<input type="file" id="importFile" accept=".json,application/json"></label>
+    </div>
+  </section>
+  <section class="summary" id="summary"></section>
+  <section class="table-shell">
+    <div class="empty-note">状态、渠道、日期和备注均可直接编辑。岗位来源信息随记录保存，即使岗位从 jobs.json 下架也不会丢失。</div>
+    <div id="applicationsTable"></div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+<script>
+const STORAGE_KEY="xiaozhao_radar_applications_v2";
+const LEGACY_KEY="xiaozhao_radar_tracking_v1";
+const STATUSES=["准备投递","已投递","笔试","一面","二面","HR面","Offer","拒绝","放弃"];
+const CHANNELS=["官网","内推","招聘平台","公众号","宣讲会","其他"];
+let applications=loadApplications();
+let table;
+
+function toast(message){const el=document.getElementById("toast");el.textContent=message;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2600);}
+function uid(){return window.crypto&&window.crypto.randomUUID?window.crypto.randomUUID():Date.now()+"-"+Math.random().toString(16).slice(2);}
+function loadApplications(){
+  try{const parsed=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");return normalizeList(Array.isArray(parsed)?parsed:parsed.applications||[]);}catch(e){return [];}
+}
+function normalizeList(rows){return rows.filter(Boolean).map(row=>({
+  id:String(row.id||uid()),jobKey:String(row.jobKey||""),company:String(row.company||""),position:String(row.position||""),
+  channel:CHANNELS.includes(row.channel)?row.channel:"其他",status:STATUSES.includes(row.status)?row.status:"准备投递",
+  appliedAt:String(row.appliedAt||""),firstInterviewAt:String(row.firstInterviewAt||""),note:String(row.note||""),
+  job:{location:String(row.job?.location||row.location||""),batch:String(row.job?.batch||row.batch||""),jobUpdatedAt:String(row.job?.jobUpdatedAt||row.jobUpdatedAt||""),deadline:String(row.job?.deadline||row.deadline||""),announcementUrl:String(row.job?.announcementUrl||row.announcementUrl||""),applyUrl:String(row.job?.applyUrl||row.applyUrl||""),source:String(row.job?.source||row.source||"")},
+  createdAt:String(row.createdAt||new Date().toISOString()),updatedAt:String(row.updatedAt||new Date().toISOString())
+}));}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(applications));renderSummary();}
+function refreshData(){applications=normalizeList(table.getData());save();}
+function safeLink(cell){const url=cell.getValue();if(!/^https?:\/\//i.test(url||""))return "-";const a=document.createElement("a");a.className="job-link";a.href=url;a.target="_blank";a.rel="noopener noreferrer";a.textContent="打开";return a;}
+function statusFormatter(cell){const span=document.createElement("span");span.className="status-pill";span.textContent=cell.getValue()||"准备投递";return span;}
+function renderSummary(){
+  const count=s=>applications.filter(x=>x.status===s).length;
+  const cards=[["全部记录",applications.length],["已投递",count("已投递")],["面试中",count("一面")+count("二面")+count("HR面")],["Offer",count("Offer")],["待行动",count("准备投递")]];
+  document.getElementById("summary").innerHTML=cards.map(x=>'<div class="metric"><div class="n">'+x[1]+'</div><div class="label">'+x[0]+'</div></div>').join("");
+}
+function initTable(){
+  if(typeof Tabulator==="undefined"){document.getElementById("applicationsTable").innerHTML="表格组件加载失败，请检查网络后刷新。";return;}
+  table=new Tabulator("#applicationsTable",{
+    data:applications,index:"id",height:"65vh",layout:"fitColumns",pagination:true,paginationSize:30,movableColumns:true,
+    persistence:{columns:true,sort:true,filter:true},persistenceID:"xiaozhao-applications-grid-v1",placeholder:"还没有投递记录，请从招聘机会页加入岗位，或点击新建记录。",
+    columnDefaults:{headerMenu:[{label:"隐藏此列",action:(e,column)=>column.hide()}],vertAlign:"middle"},
+    columns:[
+      {title:"",width:42,hozAlign:"center",headerSort:false,formatter:()=>'<button class="row-delete" title="删除">×</button>',cellClick:(e,cell)=>{if(confirm("确定删除这条投递记录？")){cell.getRow().delete();refreshData();}}},
+      {title:"公司",field:"company",editor:"input",headerFilter:"input",frozen:true,width:160},
+      {title:"岗位",field:"position",editor:"input",headerFilter:"input",frozen:true,minWidth:220},
+      {title:"渠道",field:"channel",editor:"list",editorParams:{values:CHANNELS},headerFilter:"list",headerFilterParams:{values:["",...CHANNELS]},width:120},
+      {title:"状态",field:"status",editor:"list",editorParams:{values:STATUSES},headerFilter:"list",headerFilterParams:{values:["",...STATUSES]},formatter:statusFormatter,width:125},
+      {title:"投递日期",field:"appliedAt",editor:"date",sorter:"date",headerFilter:"input",width:130},
+      {title:"一面日期",field:"firstInterviewAt",editor:"date",sorter:"date",headerFilter:"input",width:130},
+      {title:"备注",field:"note",editor:"textarea",headerFilter:"input",minWidth:260},
+      {title:"地点",field:"job.location",headerFilter:"input",visible:false},
+      {title:"批次",field:"job.batch",headerFilter:"input",visible:false},
+      {title:"岗位更新时间",field:"job.jobUpdatedAt",sorter:"date",visible:false},
+      {title:"截止日期",field:"job.deadline",visible:false},
+      {title:"官方公告",field:"job.announcementUrl",formatter:safeLink,visible:false},
+      {title:"投递链接",field:"job.applyUrl",formatter:safeLink,visible:false},
+      {title:"数据来源",field:"job.source",visible:false},
+      {title:"记录更新时间",field:"updatedAt",visible:false}
+    ]
+  });
+  table.on("cellEdited",cell=>{cell.getRow().update({updatedAt:new Date().toISOString()});refreshData();});
+  table.on("dataChanged",()=>renderSummary());
+}
+function addRecord(){
+  const now=new Date().toISOString();const row={id:uid(),jobKey:"",company:"",position:"",channel:"其他",status:"准备投递",appliedAt:"",firstInterviewAt:"",note:"",job:{location:"",batch:"",jobUpdatedAt:"",deadline:"",announcementUrl:"",applyUrl:"",source:"手动添加"},createdAt:now,updatedAt:now};
+  table.addRow(row,true).then(r=>{refreshData();r.getCell("company").edit();});
+}
+function download(name,content,type){const blob=new Blob([content],{type});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+function exportJson(){refreshData();download("xiaozhao-applications.json",JSON.stringify({version:2,exportedAt:new Date().toISOString(),applications},null,2),"application/json;charset=utf-8");toast("JSON 备份已导出");}
+function importJson(file){
+  const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result);const incoming=normalizeList(Array.isArray(parsed)?parsed:parsed.applications||[]);if(!incoming.length)throw new Error("文件中没有投递记录");
+    if(document.getElementById("importMode").value==="replace")applications=incoming;else{const mergeKey=x=>x.jobKey||x.id;const map=new Map(applications.map(x=>[mergeKey(x),x]));incoming.forEach(x=>map.set(mergeKey(x),x));applications=[...map.values()];}
+    save();table.setData(applications);toast("已导入 "+incoming.length+" 条记录");
+  }catch(e){alert("导入失败："+e.message);}document.getElementById("importFile").value="";};reader.readAsText(file,"utf-8");
+}
+async function migrateLegacy(){
+  if(applications.length||localStorage.getItem("xiaozhao_apps_legacy_migrated"))return;
+  let legacy;try{legacy=JSON.parse(localStorage.getItem(LEGACY_KEY)||"{}");}catch(e){return;}const keys=Object.keys(legacy).filter(k=>legacy[k]&&(legacy[k].status!=="未跟进"||legacy[k].note));if(!keys.length)return;
+  let jobs=[];try{const res=await fetch("jobs.json");const body=await res.json();jobs=Array.isArray(body)?body:body.jobs||[];}catch(e){}
+  const now=new Date().toISOString();keys.forEach(key=>{const job=jobs.find(j=>[j.c||"",j.p||"",j.l||"",j.u||""].join("|")===key);const old=legacy[key];applications.push({id:uid(),jobKey:key,company:job?.c||key.split("|")[0]||"",position:job?.p||key.split("|")[1]||"",channel:"其他",status:STATUSES.includes(old.status)?old.status:(old.status==="面试"?"一面":old.status==="未跟进"?"准备投递":"准备投递"),appliedAt:"",firstInterviewAt:"",note:old.note||"",job:{location:job?.l||"",batch:job?.w||"",jobUpdatedAt:job?.ut||"",deadline:job?.d||"",announcementUrl:job?.a||"",applyUrl:job?.u||"",source:job?.s||""},createdAt:old.updatedAt||now,updatedAt:old.updatedAt||now});});
+  localStorage.setItem("xiaozhao_apps_legacy_migrated","1");save();
+}
+document.getElementById("addBtn").onclick=addRecord;
+let detailsVisible=false;document.getElementById("toggleDetailsBtn").onclick=()=>{detailsVisible=!detailsVisible;["job.location","job.batch","job.jobUpdatedAt","job.deadline","job.announcementUrl","job.applyUrl","job.source"].forEach(field=>{const col=table.getColumn(field);if(col)detailsVisible?col.show():col.hide();});document.getElementById("toggleDetailsBtn").textContent=detailsVisible?"隐藏岗位详情列":"显示岗位详情列";};
+document.getElementById("exportJsonBtn").onclick=exportJson;
+document.getElementById("exportCsvBtn").onclick=()=>{table.download("csv","xiaozhao-applications.csv",{bom:true});toast("CSV 表格已导出");};
+document.getElementById("importFile").onchange=e=>{if(e.target.files[0])importJson(e.target.files[0]);};
+(async()=>{await migrateLegacy();applications=loadApplications();renderSummary();initTable();})();
+</script>
+</body>
+</html>
