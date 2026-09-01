@@ -151,30 +151,7 @@ def parse_sheet(json_str):
         out.append(rec)
     return out
 
-# ============ 映射（复现前端 tdToRow / mapTDIndustry / extractLocation / isExpiredDeadline）============
-def map_industry(td_ind):
-    if not td_ind:
-        return "综合"
-    rules = [
-        (r"互联网|软件|游戏|AI|大模型|电商|科技", "互联网科技"),
-        (r"银行|金融|证券|基金|保险|信托", "银行金融"),
-        (r"能源|电力|燃气|核能", "能源电力"),
-        (r"通信|5G|电信", "通信运营商"),
-        (r"汽车|驾驶", "汽车制造"),
-        (r"医药|医疗|生物|制药", "医药医疗"),
-        (r"快消|零售|食品|饮料|家电", "快消零售"),
-        (r"装备|机械|制造|机器人|半导体|芯片|硬件", "装备重工"),
-        (r"建筑|地产|市政|工程", "建筑地产"),
-        (r"石油|石化|化工", "石油化工"),
-        (r"航天|航空|军工|国防", "航天军工"),
-        (r"物流|运输|交通|邮政", "交通物流"),
-        (r"农业|农林|畜牧|食品", "农业食品"),
-    ]
-    for pat, name in rules:
-        if re.search(pat, td_ind):
-            return name
-    return "综合"
-
+# ============ 字段整理（保留腾讯表格原始行业值）============
 def extract_location(text):
     if not text:
         return ""
@@ -223,14 +200,14 @@ def to_row(r):
     announcement = (r.get("官方公告") or "").strip()
     clean_announcement = announcement.split()[0] if (announcement and re.match(r"^https?://", announcement)) else ""
     updated_at = (r.get("更新日期") or "").strip()
-    ind = map_industry(r.get("行业") or "")
+    ind = (r.get("行业") or "").strip()
     batch = (r.get("批次") or "").strip()
     title = p if p else (batch or "校招信息")
     return {
         "c": c, "p": title, "l": loc, "e": "",
         "w": batch,
         "d": deadline, "s": "校招信息聚合平台",
-        "t": ("互联网" if ind == "互联网科技" else "其他"),
+        "t": "其他",
         "ind": ind, "ut": updated_at, "a": clean_announcement, "u": clean_url,
     }
 

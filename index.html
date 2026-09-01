@@ -28,7 +28,6 @@ tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:#f7f8ff}
 tbody td{padding:11px 16px;vertical-align:middle;color:#374151}
 .cname{font-weight:600;color:#1f2937}
-.t-title{max-width:340px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
 .tag-g{background:#e0ecff;color:#2563eb}.tag-y{background:#fef3c7;color:#b45309}.tag-t{background:#d1fae5;color:#047857}.tag-a{background:#fce7f3;color:#be185d}.tag-b{background:#e0e7ff;color:#4338ca}.tag-s{background:#ede9fe;color:#6d28d9}
 .link-btn{color:#5b6ef5;text-decoration:none;font-size:12px;font-weight:600;padding:4px 10px;border:1px solid #e0e3ff;border-radius:6px;transition:all .15s;white-space:nowrap}
@@ -88,19 +87,19 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 <div class="pbar"><div class="pfill" id="pfill"></div></div>
 </div>
 <div class="top-bar">
-<div style="display:flex;align-items:center"><h1>📊 Xiaozhao Radar - 校招雷达 <span style="font-size:12px;background:rgba(255,255,255,.25);padding:3px 10px;border-radius:999px;font-weight:600;vertical-align:middle">v2.3.0</span></h1><nav class="top-nav"><a class="active" href="index.html">招聘机会</a><a href="applications.html">我的投递</a></nav></div>
+<div style="display:flex;align-items:center"><h1><i data-lucide="radar" aria-hidden="true"></i> Xiaozhao Radar - 校招雷达 <span style="font-size:12px;background:rgba(255,255,255,.25);padding:3px 10px;border-radius:999px;font-weight:600;vertical-align:middle">v2.3.0</span></h1><nav class="top-nav"><a class="active" href="index.html">招聘机会</a><a href="applications.html">我的投递</a></nav></div>
 <div>
-<button class="btn btn-p" onclick="startCrawl()">🕷 一键爬虫(Firecrawl主选)</button>
-<button class="btn btn-o" style="background:#0ea5e9;color:#fff" onclick="showToolHelp()">🛡 备用工具(BrowserAct/OpenCLI)</button>
-<button class="btn btn-g" onclick="addRow()">➕ 添加</button>
-<button class="btn btn-o" onclick="exportExcel()">📥 导出</button>
+<button class="btn btn-p" onclick="startCrawl()"><i data-lucide="bot" aria-hidden="true"></i> 一键爬虫(Firecrawl主选)</button>
+<button class="btn btn-o" style="background:#0ea5e9;color:#fff" onclick="showToolHelp()"><i data-lucide="shield-check" aria-hidden="true"></i> 备用工具(BrowserAct/OpenCLI)</button>
+<button class="btn btn-g" onclick="addRow()"><i data-lucide="plus" aria-hidden="true"></i> 添加</button>
+<button class="btn btn-o" onclick="exportExcel()"><i data-lucide="download" aria-hidden="true"></i> 导出</button>
 <input type="file" id="importFile" accept=".json,.csv" style="display:none" onchange="handleImport(this)">
-<button class="btn btn-o" style="background:#0ea5e9;color:#fff" onclick="document.getElementById('importFile').click()">📤 导入</button>
-<button class="btn btn-d" onclick="clearAll()">🗑 清空</button>
+<button class="btn btn-o" style="background:#0ea5e9;color:#fff" onclick="document.getElementById('importFile').click()"><i data-lucide="upload" aria-hidden="true"></i> 导入</button>
+<button class="btn btn-d" onclick="clearAll()"><i data-lucide="trash-2" aria-hidden="true"></i> 清空</button>
 </div>
 </div>
 <div class="toolbar">
-<input type="text" class="s-input" id="searchInput" placeholder="🔍 填地点/关键词定向（如：北京 / Java）" oninput="filterData()">
+<input type="text" class="s-input" id="searchInput" placeholder="🔍 搜索地点、行业或关键词（如：北京 / Java）" oninput="filterData()">
 <select class="select" id="indFilter" onchange="filterData()" style="width:150px">
 <option value="">全部行业</option>
 <option value="互联网科技">互联网科技</option>
@@ -146,9 +145,9 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 <tbody id="tbody"></tbody>
 </table></div>
 <div id="pagination" style="display:none">
-<button class="btn btn-p" onclick="changePage(-1)">← 上一页</button>
+<button class="btn btn-p" onclick="changePage(-1)"><i data-lucide="chevron-left" aria-hidden="true"></i> 上一页</button>
 <span id="pageInfo"></span>
-<button class="btn btn-p" onclick="changePage(1)">下一页 →</button>
+<button class="btn btn-p" onclick="changePage(1)">下一页 <i data-lucide="chevron-right" aria-hidden="true"></i></button>
 <select class="select" id="pageSizeSelect" style="margin-left:12px;width:auto" onchange="changePageSize(this.value)">
 <option value="20">20条/页</option>
 <option value="50">50条/页</option>
@@ -186,6 +185,7 @@ opencli weibo search 招聘
 <p style="font-size:12px;color:#94a3b8;margin-top:14px;line-height:1.6">说明：BrowserAct / OpenCLI 均为本地命令行工具，无法在纯前端网页内直接调用，故作为「备用」，通过「CLI 抓取 → 导出 → 导入」与雷达衔接。主选 Firecrawl 才是网页内一键直连的方案。</p>
 </div>
 </div>
+<script src="https://unpkg.com/lucide@0.525.0/dist/umd/lucide.min.js"></script>
 <script>
 let D=[],F=[],currentPage=1,pageSize=20,currentSort="updated_desc";
 const VIEW_STATE_KEY="xiaozhao_radar_view_state_v1";
@@ -1121,6 +1121,7 @@ async function init(){
     if(ak){document.getElementById('anysearchKey').value=ak;}
     restoreViewState();
     filterData(true);
+    renderIcons();
     saveData();
     // ★ 后台静默尝试实时更新：仅当没有聚合数据时，才尝试本地代理拉腾讯文档最新数据
     //   普通用户无需理解代理/数据来源，一切自动
@@ -1454,7 +1455,7 @@ function tdToRow(r, sheetId){
     const cleanUrl = (url && /^https?:\/\//.test(url)) ? url.split(/\s+/)[0] : "";
     const announcement = r["官方公告"] || "";
     const cleanAnnouncement = (announcement && /^https?:\/\//.test(announcement)) ? announcement.split(/\s+/)[0] : "";
-    const ind = mapTDIndustry(r["行业"]||"");
+    const ind = String(r["行业"]||"").trim();
     const batch = r["批次"] || "";
     const title = (p ? p : (batch||"校招信息"));
     return {
@@ -1465,32 +1466,13 @@ function tdToRow(r, sheetId){
         w: batch,
         d: deadline,
         s: "校招信息聚合平台",
-        t: (ind==="互联网科技"?"互联网":"其他"),
+        t: "其他",
         ind: ind,
         ut: r["更新日期"] || "",
         a: cleanAnnouncement,
         u: cleanUrl
     };
 }
-// 腾讯文档行业 → 项目 15 类（轻量映射）
-function mapTDIndustry(tdInd){
-    if(!tdInd) return "综合";
-    if(/互联网|软件|游戏|AI|大模型|电商|科技/.test(tdInd)) return "互联网科技";
-    if(/银行|金融|证券|基金|保险|信托/.test(tdInd)) return "银行金融";
-    if(/能源|电力|燃气|核能/.test(tdInd)) return "能源电力";
-    if(/通信|5G|电信/.test(tdInd)) return "通信运营商";
-    if(/汽车|驾驶/.test(tdInd)) return "汽车制造";
-    if(/医药|医疗|生物|制药/.test(tdInd)) return "医药医疗";
-    if(/快消|零售|食品|饮料|家电/.test(tdInd)) return "快消零售";
-    if(/装备|机械|制造|机器人|半导体|芯片|硬件/.test(tdInd)) return "装备重工";
-    if(/建筑|地产|市政|工程/.test(tdInd)) return "建筑地产";
-    if(/石油|石化|化工/.test(tdInd)) return "石油化工";
-    if(/航天|航空|军工|国防/.test(tdInd)) return "航天军工";
-    if(/物流|运输|交通|邮政/.test(tdInd)) return "交通物流";
-    if(/农业|农林|畜牧|食品/.test(tdInd)) return "农业食品";
-    return "综合";
-}
-
 const CITY_LIST = ["北京","上海","广州","深圳","成都","杭州","武汉","南京","重庆","西安","苏州","天津","长沙","郑州","青岛","东莞","佛山","宁波","无锡","厦门","福州","济南","合肥","昆明","大连","哈尔滨","沈阳","长春","石家庄","太原","南昌","贵阳","南宁","海口","兰州","银川","西宁","呼和浩特","乌鲁木齐","拉萨"];
 function extractLocation(text){
   if(/多地|全国|不限地点|工作地不限/.test(text)) return "多地";
@@ -1783,14 +1765,23 @@ function esc(s){
     return (s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
+function toggleCellExpand(button){
+    var expanded=button.getAttribute("aria-expanded")==="true";
+    button.setAttribute("aria-expanded",String(!expanded));
+}
+
+function renderIcons(){
+    if(window.lucide)window.lucide.createIcons({attrs:{"aria-hidden":"true"}});
+}
+
 function editCell(cell,idx,f){
     var inp=document.createElement("input");
     inp.type="text";inp.value=cell.textContent||"";
     inp.style.cssText="width:100%;border:none;outline:none;background:#fff8e1;font-size:13px";
-    if(cell.classList) cell.classList.remove("t-title");
+    if(cell.classList) cell.classList.remove("cell-expand");
     cell.style.whiteSpace="normal";cell.style.overflow="visible";cell.style.textOverflow="clip";
     cell.textContent="";cell.appendChild(inp);inp.focus();inp.select();
-    function save(){D[idx][f]=inp.value;cell.textContent=inp.value||"";saveData();}
+    function save(){D[idx][f]=inp.value;saveData();render();}
     inp.onblur=save;
     inp.onkeydown=function(e){if(e.key==="Enter")save();if(e.key==="Escape"){inp.value="";save();}};
 }
@@ -1821,8 +1812,8 @@ function render(){
         h+='<tr>';
         h+='<td style="color:#9ca3b6;font-size:12px">'+(realIdx+1)+'</td>';
         h+='<td><span class="cname" ondblclick="editCell(this,'+realIdx+',\'c\')">'+(item.c||"-")+'</span></td>';
-        h+='<td><span class="t-title" title="'+esc(item.p)+'" ondblclick="editCell(this,'+realIdx+',\'p\')">'+(item.p||"-")+'</span></td>';
-        h+='<td><span class="tag tag-s">'+esc(item.ind||"-")+'</span></td>';
+        h+='<td><button type="button" class="cell-expand" aria-expanded="false" title="'+esc(item.p)+'" onclick="toggleCellExpand(this)" ondblclick="editCell(this,'+realIdx+',\'p\')"><span class="cell-expand-text">'+esc(item.p||"-")+'</span><i data-lucide="chevron-down"></i></button></td>';
+        h+='<td><button type="button" class="cell-expand industry-expand" aria-expanded="false" title="'+esc(item.ind)+'" onclick="toggleCellExpand(this)"><span class="cell-expand-text">'+esc(item.ind||"-")+'</span><i data-lucide="chevron-down"></i></button></td>';
         h+='<td><span ondblclick="editCell(this,'+realIdx+',\'ut\')">'+(item.ut||"-")+'</span></td>';
         h+='<td><span ondblclick="editCell(this,'+realIdx+',\'w\')">'+(item.w||"-")+'</span></td>';
         h+='<td><span ondblclick="editCell(this,'+realIdx+',\'l\')">'+(item.l||"-")+'</span></td>';
@@ -1841,6 +1832,7 @@ function render(){
         h+='</tr>';
     });
     tb.innerHTML=h;
+    renderIcons();
 }
 
 function changePage(delta){
@@ -1865,7 +1857,7 @@ function filterData(preservePage){
     var lf=document.getElementById("linkFilter").value;
     var cutoff=uf?new Date(Date.now()-uf*86400000):null;
     F=D.filter(function(item){
-        var ms=!sv||(item.c||"").toLowerCase().includes(sv)||(item.p||"").toLowerCase().includes(sv)||(item.l||"").toLowerCase().includes(sv);
+        var ms=!sv||(item.c||"").toLowerCase().includes(sv)||(item.p||"").toLowerCase().includes(sv)||(item.l||"").toLowerCase().includes(sv)||(item.ind||"").toLowerCase().includes(sv);
         var ms4=!iv||!item.ind||item.ind===iv;
         var ms2=!sf||!item.t||item.t===sf;
         var ms3=!ef||item.e===ef;
