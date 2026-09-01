@@ -48,6 +48,10 @@ body{
 
 .header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .header-actions .btn{margin-left:0}
+.gh-link{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;color:var(--ui-text)}
+.gh-link:hover{background:var(--ui-primary-soft)}
+.gh-link svg{width:18px;height:18px;fill:#24292f;transition:fill .15s}
+.gh-link:hover svg{fill:var(--ui-primary)}
 .icon-only{width:36px;padding:0!important}
 .compact-btn{margin-left:0!important;padding:7px 10px!important}
 .search-field{position:relative;display:flex;align-items:center}

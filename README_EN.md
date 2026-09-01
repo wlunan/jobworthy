@@ -59,8 +59,7 @@ Then click **📤 Import** in the radar page and select `xiaozhao.json`.
 - **Category filter** — filter by Internet / SOE / Job board
 - **Data source tag** — every record carries a `ds` field (currently the aggregated source only); the Data source filter is ready for future spreadsheet datasets. Education column is deprecated and no longer shown.
 - **Company name display** — shows real company names (Tencent, State Grid), not source domains
-- **JSON/CSV import** — bring your own data from any CLI tool
-- **Zero backend** — single HTML file, open and use
+- **Zero backend** — static HTML + JS modules served by GitHub Pages, data auto-synced daily
 
 ## Tech stack
 

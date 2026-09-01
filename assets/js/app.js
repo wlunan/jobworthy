@@ -10,6 +10,9 @@ let applications=[];
 
 const DEFAULT_FIRECRAWL_KEY = "";
 
+const DATA_UPDATED_KEY="xiaozhao_radar_data_updated";
+const HERO_DISMISSED_KEY="xiaozhao_radar_hero_dismissed";
+
 
 
 // ★ 打通同步闭环：页面首选从 GitHub Pages 读取 scripts/sync_tencent_docs.py 自动同步的聚合数据 jobs.json
@@ -23,7 +26,7 @@ async function loadRemoteJobs(){
         // 兼容两种格式：数组本身，或 {jobs:[...]} 包装
         const arr = Array.isArray(obj) ? obj : (obj && obj.jobs);
         if(Array.isArray(arr) && arr.length){
-            return arr;
+            return {jobs: arr, updated: (obj && obj.updated) || ""};
         }
     }catch(e){
         console.warn("[校招雷达] jobs.json 加载失败，尝试本地缓存：", e && e.message);
@@ -35,10 +38,14 @@ var SEARCH_FIELD_PLACEHOLDERS={"":"搜索公司、职位、地点或关键词（
 
 async function init(){
     loadApplications();
+    initHeroBanner();
     // 1) 首选：GitHub Pages 上每周五同步的聚合数据（打通同步闭环）
     var remote = await loadRemoteJobs();
-    if(remote && remote.length){
-        D = remote;
+    if(remote && remote.jobs){
+        D = remote.jobs;
+        if(remote.updated){
+            try{localStorage.setItem(DATA_UPDATED_KEY, remote.updated);}catch(e){}
+        }
         console.log("[校招雷达] 已从 jobs.json 加载 "+D.length+" 条聚合数据");
     } else {
         // 2) 兜底：localStorage 已保存的用户数据
@@ -663,102 +670,39 @@ function restoreViewState(){
     document.getElementById("searchInput").placeholder=SEARCH_FIELD_PLACEHOLDERS[document.getElementById("searchField").value]||SEARCH_FIELD_PLACEHOLDERS[""];
 }
 
-function csvCell(v){
-    var s=String(v==null?"":v);
-    if(s.indexOf(",")>=0||s.indexOf("\n")>=0||s.indexOf("\r")>=0||s.indexOf('"')>=0){
-        return '"'+s.replace(/"/g,'""')+'"';
-    }
-    return s;
-}
-function exportExcel(){
-    if(!F.length){toast("没有数据");return;}
-    var h=["序号","公司","职位","岗位更新时间","批次","地点","截止日期","官方公告","投递链接","来源"];
-    var rows=[];F.forEach(function(item,i){rows.push([i+1,item.c,item.p,item.ut,item.w,item.l,item.d,item.a,item.u,item.s]);});
-    var csv=h.map(csvCell).join(",")+"\n";rows.forEach(function(r){csv+=r.map(csvCell).join(",")+"\n";});
-    var a=document.createElement("a");a.href="data:text/csv;charset=utf-8,\uFEFF"+encodeURIComponent(csv);a.download="xiaozhao-radar-data.csv";a.click();
-    toast("已导出CSV");
-}
-
-function handleImport(input){
-    var file=input.files[0];
-    if(!file){return;}
-    var reader=new FileReader();
-    reader.onload=function(e){
-        try{
-            var text=e.target.result;
-            var rows;
-            if(/\.json$/i.test(file.name)){
-                rows=JSON.parse(text);
-                if(!Array.isArray(rows)){
-                    if(Array.isArray(rows.data)) rows=rows.data;
-                    else if(Array.isArray(rows.items)) rows=rows.items;
-                    else if(Array.isArray(rows.results)) rows=rows.results;
-                    else rows=[rows];
-                }
-            }else{
-                rows=parseCSV(text);
-            }
-            rows=rows.map(function(r){
-                var loc=[r.city,r.district].filter(Boolean).join("/")||r.l||r.location||"";
-                var welfare=[(r.salary||r.salaryMin?(r.salary||r.salaryMin):""),r.tags,r.welfare,r.summary].filter(Boolean).join(" ")||r.w||"";
-                var company=r.c||r.company||r.companyFull||"";
-                return {
-                    c: company,
-                    p: r.p||r.position||r.title||"",
-                    l: loc,
-                    ds: r.ds||r.dataSource||DEFAULT_DATA_SOURCE,
-                    w: r.w||r.batch||r["批次"]||welfare,
-                    d: r.d||r.deadline||r.issueDate||"",
-                    s: r.s||r.source||"OpenCLI导入",
-                    t: getType(company),
-                    ut: r.ut||r.updatedAt||r["更新时间"]||r["岗位更新时间"]||"",
-                    a: r.a||r.announcement||r["官方公告"]||"",
-                    u: r.u||r.url||r.companyUrl||r.link||""
-                };
-            }).filter(function(r){return r.c||r.p;});
-            if(!rows.length){toast("没有解析到有效记录");input.value="";return;}
-            D=rows;F=D.slice();currentPage=1;render();saveData();
-            toast("已导入 "+rows.length+" 条记录");
-        }catch(err){
-            toast("导入失败："+err.message);
-        }
-        input.value="";
-    };
-    reader.readAsText(file,"utf-8");
-}
-
-function parseCSV(text){
-    var lines=text.replace(/\r/g,"").split("\n").filter(function(l){return l.trim()!=="";});
-    if(!lines.length)return [];
-    var headers=splitCSVLine(lines[0]);
-    return lines.slice(1).map(function(line){
-        var cols=splitCSVLine(line);
-        var o={};headers.forEach(function(h,i){o[h.trim()]=cols[i]!==undefined?cols[i].trim():"";});
-        return o;
-    });
-}
-function splitCSVLine(line){
-    var out=[],cur="",q=false;
-    for(var i=0;i<line.length;i++){
-        var ch=line[i];
-        if(ch==='"'){q=!q;continue;}
-        if(ch===","&&!q){out.push(cur);cur="";continue;}
-        cur+=ch;
-    }
-    out.push(cur);return out;
-}
 
 function toast(msg){
     var t=document.getElementById("toast");t.textContent=msg;
     t.classList.add("show");setTimeout(function(){t.classList.remove("show");},3500);
 }
 
+// ===== 顶部 Hero 横幅：价值主张 + 数据更新时间 + 作者信息（留空自动隐藏）=====
+function initHeroBanner(){
+    var banner=document.getElementById("heroBanner");
+    if(!banner)return;
+    try{
+        if(localStorage.getItem(HERO_DISMISSED_KEY)==="1"){banner.style.display="none";return;}
+    }catch(e){}
+    var updated="";
+    try{updated=localStorage.getItem(DATA_UPDATED_KEY)||"";}catch(e){}
+    var meta=document.getElementById("heroUpdated");
+    if(meta){
+        meta.textContent=updated?("数据更新于 "+updated):"";
+        meta.style.display=updated?"":"none";
+    }
+}
+function dismissHero(){
+    var banner=document.getElementById("heroBanner");
+    if(banner)banner.style.display="none";
+    try{localStorage.setItem(HERO_DISMISSED_KEY,"1");}catch(e){}
+}
+
 // ===== ES module mount: inline HTML handlers need these on window =====
 Object.assign(window, {
-    exportExcel, handleImport, clearAll,
+    clearAll,
     onSearchFieldChange, filterData, clearFilters,
     changeSort, changePage, changePageSize,
-    editCell, addToApplications, toggleCellExpand, startCrawl
+    editCell, addToApplications, toggleCellExpand, startCrawl, dismissHero
 });
 
 init();
