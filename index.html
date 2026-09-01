@@ -88,18 +88,19 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 </div>
 <div class="top-bar">
 <div style="display:flex;align-items:center"><h1><i data-lucide="radar" aria-hidden="true"></i> Xiaozhao Radar - 校招雷达 <span style="font-size:12px;background:rgba(255,255,255,.25);padding:3px 10px;border-radius:999px;font-weight:600;vertical-align:middle">v2.3.0</span></h1><nav class="top-nav"><a class="active" href="index.html">招聘机会</a><a href="applications.html">我的投递</a></nav></div>
-<div>
-<button class="btn btn-p" onclick="startCrawl()"><i data-lucide="bot" aria-hidden="true"></i> 一键爬虫(Firecrawl主选)</button>
-<button class="btn btn-o" style="background:#0ea5e9;color:#fff" onclick="showToolHelp()"><i data-lucide="shield-check" aria-hidden="true"></i> 备用工具(BrowserAct/OpenCLI)</button>
-<button class="btn btn-g" onclick="addRow()"><i data-lucide="plus" aria-hidden="true"></i> 添加</button>
-<button class="btn btn-o" onclick="exportExcel()"><i data-lucide="download" aria-hidden="true"></i> 导出</button>
-<input type="file" id="importFile" accept=".json,.csv" style="display:none" onchange="handleImport(this)">
-<button class="btn btn-o" style="background:#0ea5e9;color:#fff" onclick="document.getElementById('importFile').click()"><i data-lucide="upload" aria-hidden="true"></i> 导入</button>
-<button class="btn btn-d" onclick="clearAll()"><i data-lucide="trash-2" aria-hidden="true"></i> 清空</button>
-</div>
+  <div class="header-actions">
+  <button class="btn btn-p" onclick="startCrawl()"><i data-lucide="bot" aria-hidden="true"></i> 开始抓取</button>
+  <button class="btn btn-o" style="background:#0ea5e9;color:#fff" onclick="showToolHelp()"><i data-lucide="shield-check" aria-hidden="true"></i> 备用工具(BrowserAct/OpenCLI)</button>
+  <button class="btn btn-g" onclick="addRow()"><i data-lucide="plus" aria-hidden="true"></i> 添加</button>
+  <button class="btn btn-o" onclick="exportExcel()"><i data-lucide="download" aria-hidden="true"></i> 导出</button>
+  <input type="file" id="importFile" accept=".json,.csv" style="display:none" onchange="handleImport(this)">
+  <button class="btn btn-o" style="background:#0ea5e9;color:#fff" onclick="document.getElementById('importFile').click()"><i data-lucide="upload" aria-hidden="true"></i> 导入</button>
+  <button class="btn btn-o icon-only" type="button" onclick="showSettings()" aria-label="打开设置" title="设置"><i data-lucide="settings-2" aria-hidden="true"></i></button>
+  <button class="btn btn-d" onclick="clearAll()"><i data-lucide="trash-2" aria-hidden="true"></i> 清空</button>
+  </div>
 </div>
 <div class="toolbar">
-<input type="text" class="s-input" id="searchInput" placeholder="🔍 搜索地点、行业或关键词（如：北京 / Java）" oninput="filterData()">
+<div class="search-field"><i data-lucide="search" aria-hidden="true"></i><input type="text" class="s-input" id="searchInput" placeholder="搜索地点、行业或关键词（如：北京 / Java）" oninput="filterData()"></div>
 <select class="select" id="indFilter" onchange="filterData()" style="width:150px">
 <option value="">全部行业</option>
 <option value="互联网科技">互联网科技</option>
@@ -129,17 +130,22 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 <input type="text" class="select" id="batchFilter" placeholder="批次筛选" oninput="filterData()" style="width:120px">
 <select class="select" id="updatedFilter" onchange="filterData()"><option value="">全部更新时间</option><option value="1">最近1天</option><option value="3">最近3天</option><option value="7">最近7天</option><option value="30">最近30天</option></select>
 <select class="select" id="linkFilter" onchange="filterData()"><option value="">全部链接</option><option value="official">有官方公告</option><option value="apply">有投递链接</option><option value="both">公告和投递均有</option></select>
-<button class="btn btn-p" style="font-size:12px;padding:6px 12px;margin-left:0" onclick="clearFilters()">清空筛选</button>
-<input type="password" class="key-input" id="apiKey" placeholder="Firecrawl Key（已内置默认·留空即用）" oninput="localStorage.setItem('xiaozhao_firecrawl_key',this.value)">
-<input type="password" class="key-input" id="anysearchKey" placeholder="AnySearch Key（可选·留空匿名）" oninput="localStorage.setItem('xiaozhao_anysearch_key',this.value)" style="width:190px">
-<button class="btn btn-p" style="font-size:12px;padding:6px 12px;margin-left:0" onclick="loadSample()">📋 演示数据</button>
+<button class="btn btn-p compact-btn" type="button" onclick="clearFilters()"><i data-lucide="filter-x" aria-hidden="true"></i> 清空筛选</button>
+<button class="btn btn-p compact-btn" type="button" onclick="loadSample()"><i data-lucide="file-chart-column" aria-hidden="true"></i> 演示数据</button>
 <select class="select" id="sortSelect" onchange="changeSort(this.value)"><option value="updated_desc">更新时间：新到旧</option><option value="updated_asc">更新时间：旧到新</option><option value="deadline_asc">截止日期：近到远</option><option value="deadline_desc">截止日期：远到近</option><option value="company_asc">公司名称：A-Z</option><option value="batch_asc">批次名称</option></select>
 <span class="stats" id="stats">共 0 条记录</span>
 </div>
-<div class="hint">📌 <b>使用步骤（必看）</b>：① 先在「行业」下拉选好目标行业（固定 15 类）→ ② 可选：在搜索框填地点/关键词，如「北京」→ ③ 点「🕷 一键爬虫」精准定向抓取。填了关键词则抓取结果<b>只保留匹配项</b>（如填北京只显示北京岗位），留空则抓该行业全部。🔥 一键爬虫(Firecrawl)<b>主选</b>会真实抓取<b>腾讯/阿里巴巴/美团/字节跳动/华为/国家电网/中国石化</b>等126家企业官网招聘页 + <b>16 个企业官方公众号校招推文</b>（已逐一校验发布者为官方招聘号，mp.weixin.qq.com 公开可抓）+ <b>714 家新增公开校招节点</b>（来自公开校招信息聚合，已清洗无效链接），3家综合招聘网站（51job/应届生/国聘）排最后。先加载20个站立即展示，后台继续加载剩余。<b>① AnySearch 第一备用</b>（云端免费·匿名可用·经CORS代理）｜两层本地 CLI 备用：<b>② BrowserAct</b>（专破反爬/验证码）｜<b>③ OpenCLI</b>（覆盖51job全量）。点「🛡 备用工具」看配置与命令。已<b>内置默认 Firecrawl Key</b>，普通学生无需注册直接可用；API Key 仅存本地浏览器。</div>
+<details class="quick-guide">
+  <summary><i data-lucide="book-open" aria-hidden="true"></i><span>使用指南</span><span class="guide-summary">设置筛选条件后再开始抓取</span><i class="guide-chevron" data-lucide="chevron-down" aria-hidden="true"></i></summary>
+  <div class="guide-content">
+    <div><span class="guide-step">01</span><strong>缩小范围</strong><p>选择行业，按需填写地点或岗位关键词。</p></div>
+    <div><span class="guide-step">02</span><strong>开始抓取</strong><p>Firecrawl 优先抓取；只保留符合当前关键词的结果。</p></div>
+    <div><span class="guide-step">03</span><strong>导入补充数据</strong><p>受反爬保护的网站可用备用工具导出后再导入。</p></div>
+  </div>
+</details>
 <!-- ★ 全局抓取进度条（页面顶部、表格上方，任何状态都可见） -->
-<div id="crawlProgress" style="display:none;margin:10px 20px;padding:12px 16px;background:#f0f4ff;border-radius:8px;color:#4338ca;font-size:13px;box-shadow:0 1px 4px rgba(91,110,245,.15)"><b>⏳ 正在爬取中...</b><span id="cpText"></span></div>
-<div id="empty"><div class="icon">📭</div><h3>还没有数据</h3><p id="emptyHint">已内置默认 Firecrawl Key。<b>使用步骤</b>：① 先选「行业」（如银行金融）→ ② 可选：搜索框填「北京」等地点/关键词 → ③ 点「🕷 一键爬虫」定向抓取（也可填自己的 Key 覆盖）<br><small style="color:#999">或点击「📋 演示数据」查看示例（不会联网）</small></p></div>
+<div id="crawlProgress" style="display:none"><i data-lucide="loader-circle" aria-hidden="true"></i><b>正在抓取中</b><span id="cpText"></span></div>
+<div id="empty"><div class="icon"><i data-lucide="inbox" aria-hidden="true"></i></div><h3>还没有数据</h3><p id="emptyHint">请先设置筛选条件，然后开始抓取；也可以载入演示数据查看页面效果。</p></div>
 <div class="table-wrap"><table id="dataTable" style="display:none">
 <thead><tr><th style="width:44px">#</th><th>公司</th><th>职位 / 标题</th><th>行业</th><th>更新时间</th><th>批次</th><th>地点</th><th>学历</th><th>截止日期</th><th>官方公告</th><th>投递链接</th><th>来源</th><th>投递管理</th></tr></thead>
 <tbody id="tbody"></tbody>
@@ -155,16 +161,16 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 </select>
 </div>
 <div class="modal" id="toolModal" onclick="if(event.target===this)closeToolHelp()">
-<div class="modal-box">
-<button class="close-x" onclick="closeToolHelp()">×</button>
-<h2>🛠 校招雷达 · 三层爬虫工具策略</h2>
+  <div class="modal-box">
+  <button class="close-x" type="button" onclick="closeToolHelp()" aria-label="关闭"><i data-lucide="x" aria-hidden="true"></i></button>
+  <h2><i data-lucide="shield-check" aria-hidden="true"></i> 校招雷达 · 三层抓取策略</h2>
 <div class="sub">主选浏览器直连，两路本地 CLI 备用，覆盖反爬 / 验证码 / 全量库</div>
 <div class="tier">
   <div class="tier-card pri"><h3>① 主选 · Firecrawl</h3><p>云端 REST API，<b>浏览器直连</b>，无需本地环境。适合 100 家公开官方招聘页批量抓取。免登录、自动处理反爬。</p></div>
   <div class="tier-card b2"><h3>② 备用 · BrowserAct</h3><p>本地 CLI <code>browser-act</code>，<b>stealth-extract</b> 零配置突破反爬、<b>solve-captcha</b> 自动解验证码。适合被拦截的站点，免费(登录)。</p></div>
   <div class="tier-card b3"><h3>③ 备用 · OpenCLI</h3><p>本地 CLI <code>opencli</code> + Chrome「Browser Bridge」插件，复用浏览器登录态，覆盖 51job 等需登录的全量岗位库。</p></div>
 </div>
-<div style="font-size:13px;color:#334155;line-height:1.8"><b>用法：</b>主选直接点「🕷 一键爬虫」即可联网抓取；两个备用工具需在<b>本机终端</b>跑 CLI 抓数据，导出 JSON 后点「📤 导入」即可进入雷达统一管理。</div>
+  <div style="font-size:13px;color:#334155;line-height:1.8"><b>用法：</b>主选直接点击“开始抓取”即可联网抓取；两个备用工具需在<b>本机终端</b>运行 CLI，导出 JSON 后再导入雷达统一管理。</div>
 <p style="font-size:13px;font-weight:600;margin:16px 0 2px;color:#0f172a">备用② BrowserAct（本地 CLI）</p>
 <div class="cmd" id="cmdBA"># 1. 安装 CLI（详见 https://github.com/browser-act/skills）
 npm install -g browser-act
@@ -172,7 +178,7 @@ npm install -g browser-act
 browser-act login
 # 3. 零配置抓取受保护的招聘页
 browser-act stealth-extract "https://join.qq.com/" --out ba_result.json
-# 4. 回到雷达页点「📤 导入」选择 ba_result.json<button class="copy-btn" onclick="copyCmd('cmdBA')">复制</button></div>
+# 4. 回到雷达页点击“导入”选择 ba_result.json<button class="copy-btn" onclick="copyCmd('cmdBA')">复制</button></div>
 <p style="font-size:13px;font-weight:600;margin:14px 0 2px;color:#0f172a">备用③ OpenCLI（本地 CLI + Chrome 插件）</p>
 <div class="cmd" id="cmdOC"># 1. 安装
 npm install -g @jackwener/opencli
@@ -181,9 +187,18 @@ npm install -g @jackwener/opencli
 opencli xiaozhao search
 opencli xiaohongshu search 校招
 opencli weibo search 招聘
-# 4. 导出 JSON 后在雷达页点「📤 导入」<button class="copy-btn" onclick="copyCmd('cmdOC')">复制</button></div>
+# 4. 导出 JSON 后在雷达页点击“导入”<button class="copy-btn" onclick="copyCmd('cmdOC')">复制</button></div>
 <p style="font-size:12px;color:#94a3b8;margin-top:14px;line-height:1.6">说明：BrowserAct / OpenCLI 均为本地命令行工具，无法在纯前端网页内直接调用，故作为「备用」，通过「CLI 抓取 → 导出 → 导入」与雷达衔接。主选 Firecrawl 才是网页内一键直连的方案。</p>
 </div>
+</div>
+<div class="modal" id="settingsModal" onclick="if(event.target===this)closeSettings()">
+  <div class="modal-box settings-box" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <button class="close-x" type="button" onclick="closeSettings()" aria-label="关闭设置"><i data-lucide="x" aria-hidden="true"></i></button>
+    <div class="settings-heading"><span class="settings-icon"><i data-lucide="settings-2" aria-hidden="true"></i></span><div><h2 id="settingsTitle">抓取设置</h2><p>密钥只保存在当前浏览器的本地存储中。</p></div></div>
+    <label class="setting-group" for="apiKey"><span>Firecrawl API Key <em>可选</em></span><input type="password" class="key-input" id="apiKey" placeholder="留空则使用默认配置" autocomplete="off" oninput="localStorage.setItem('xiaozhao_firecrawl_key',this.value)"><small>填写自己的 Key 可避免共享额度限制。</small></label>
+    <label class="setting-group" for="anysearchKey"><span>AnySearch API Key <em>可选</em></span><input type="password" class="key-input" id="anysearchKey" placeholder="留空则使用匿名额度" autocomplete="off" oninput="localStorage.setItem('xiaozhao_anysearch_key',this.value)"><small>仅在 Firecrawl 无法获取结果时作为备用。</small></label>
+    <div class="settings-footer"><button class="btn btn-g" type="button" onclick="closeSettings()"><i data-lucide="check" aria-hidden="true"></i> 完成</button></div>
+  </div>
 </div>
 <script src="https://unpkg.com/lucide@0.525.0/dist/umd/lucide.min.js"></script>
 <script>
@@ -1441,21 +1456,21 @@ async function startCrawl(){
     var firstStatus=await crawlRange(0, FIRST_BATCH, '首批 '+FIRST_BATCH+' 站并发中...');
     if(firstStatus==="BADKEY") return;
     if(rateLimited){
-        toast('⚠️ Firecrawl 免费额度已用完，已保留当前数据。');
+        toast('Firecrawl 免费额度已用完，已保留当前数据。');
         showData();
         if(cp)cp.style.display='none';
         filterData();
         return;
     }
     showData();
-    toast('✅ 已抓 '+FIRST_BATCH+' 站，数据累计 '+D.length+' 条，后台继续并发加载...');
+    toast('已抓 '+FIRST_BATCH+' 站，数据累计 '+D.length+' 条，后台继续加载。');
 
     // 后台加载剩余站点：并发5个，不遮挡页面，每10站刷新表格
     var bgStatus=await crawlRange(FIRST_BATCH, total, '后台并发加载中...');
     if(bgStatus==="BADKEY") return;
     if(rateLimited){
         showData();
-        toast('⚠️ Firecrawl 免费额度已用完，已保留当前数据。');
+        toast('Firecrawl 免费额度已用完，已保留当前数据。');
         if(cp)cp.style.display='none';
         filterData();
         return;
@@ -1465,7 +1480,7 @@ async function startCrawl(){
     if(cp)cp.style.display='none';
     // ★ 兜底判断：按"当前筛选条件下的有效结果"算，不是抓到的总数
     filterData(); // 应用当前筛选（搜索词/行业/学历），得到筛选后的 F
-    toast('🎉 全部加载完成！筛选后共 '+F.length+' 条招聘信息');
+    toast('全部加载完成，筛选后共 '+F.length+' 条招聘信息。');
 }
 
 function loadSample(){
@@ -1806,6 +1821,8 @@ function toast(msg){
 
 function showToolHelp(){document.getElementById('toolModal').classList.add('show');}
 function closeToolHelp(){document.getElementById('toolModal').classList.remove('show');}
+function showSettings(){document.getElementById('settingsModal').classList.add('show');renderIcons();}
+function closeSettings(){document.getElementById('settingsModal').classList.remove('show');}
 function copyCmd(id){
   var el=document.getElementById(id);
   var clone=el.cloneNode(true);
