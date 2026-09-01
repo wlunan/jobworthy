@@ -1,6 +1,6 @@
 {
   "name": "jobworthy",
-  "version": "2.4.1",
+  "version": "3.0.0",
   "description": "JobWorthy - Job search aggregation radar, real-time job data via Firecrawl",
   "main": "index.html",
   "scripts": {

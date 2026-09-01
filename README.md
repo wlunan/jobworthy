@@ -2,8 +2,16 @@
 
 > **🔍 AI驱动的求职信息聚合平台 —— 856 家央企/互联网大厂/各行业企业招聘节点实时抓取，分批加载+分页浏览。**
 
-[![Version](https://img.shields.io/badge/version-2.4.2-blue)]()
+[![Version](https://img.shields.io/badge/version-3.0.0-blue)]()
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)]()
+
+## 🎬 v3.0.0 核心亮点
+
+> 本次重点：**项目更名「职得 · JobWorthy」+ 定位扩展为全场景求职**。
+
+- **项目更名**：由「校招雷达 · Xiaozhao Radar」更名为「职得 · JobWorthy」，仓库名、品牌、链接、作者信息全面更新
+- **定位扩展**：从「校招」扩展为「求职」，覆盖校招 / 社招 / 实习全场景
+- **项目独立**：脱离上游 fork，作为独立开源项目维护
 
 ## 🎬 v2.4.2 核心亮点
 
@@ -176,6 +184,11 @@ A: 是。页面打开时自动读取服务器上每日同步的 `jobs.json`，�
 Apache 2.0 License
 
 ## 📋 更新日志
+
+### v3.0.0
+- **项目更名**：由「校招雷达 · Xiaozhao Radar」更名为「职得 · JobWorthy」，仓库名、品牌、链接、作者信息全面更新
+- **定位扩展**：从「校招」扩展为「求职」，覆盖校招 / 社招 / 实习全场景
+- **项目独立**：脱离上游 fork，作为独立开源项目维护
 
 ### v2.4.2
 - **新增可关闭 Hero 横幅**：表格上方展示一句话价值主张 + 数据更新时间（取自 `jobs.json` 的 `updated` 字段，关闭状态持久化到 localStorage）；顶栏右侧新增 GitHub 开源仓库图标链接
