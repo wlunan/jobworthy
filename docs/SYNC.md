@@ -50,7 +50,7 @@ Header: Referer: https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ
 |---|---|---|
 | 公司名称 | `c` | 公司 |
 | 招聘岗位 | `p` | 职位（截断 80 字） |
-| 更新日期 | `ut` | 岗位在来源表格中的更新时间 |
+| 更新日期 | `ut` | 岗位在来源表格中的更新时间（UTC 毫秒解析为北京时间 UTC+8，规避 Actions/本机时区差异） |
 | 工作地点 | `l` | 地点（从「工作地点+行业」提取城市，命中 CITY_LIST） |
 | 行业 | `ind` | 映射到项目 15 行业分类 |
 | 招聘截止日期 | `d` | 截止（过期自动过滤不显示） |
@@ -108,4 +108,5 @@ python scripts/sync_tencent_docs.py --push
 - **接口偶发 401/超时**：腾讯文档接口偶有限流。脚本带分页重试与 `added==0` 提前停止；若某次失败，重试或等几分钟再跑。
 - **数据异常**：若某次同步条数骤降/骤增，先 `--dry` 预览确认，不轻易 `--push`。
 - **文档结构变更**：若腾讯文档改了列名（如「公司名称」改名），需同步更新 `parse_sheet`/`to_row` 中的中文字段名。
+- **时区一致性**：Tencent 时间戳按 UTC 存储，脚本统一按 UTC+8（北京）解析/对比（`BJ_TZ` / `today_bj()`）。本机和 GitHub Actions（UTC）跑出来的日期一致。
 - **兜底（页面端）**：若 GitHub Pages 的 `jobs.json` 缺失，页面仅使用已有的浏览器 localStorage 缓存；腾讯文档只由同步脚本解析。

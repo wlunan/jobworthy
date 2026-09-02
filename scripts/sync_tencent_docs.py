@@ -38,6 +38,15 @@ SHEETS = [
 ]
 PAGE_SIZE = 300
 
+# ============ 时区 ============
+# Tencent 时间戳按 UTC 存储；统一按北京时间（UTC+8）解析/对比，
+# 使本机（北京时间）和 GitHub Actions（UTC）跑出来的日期一致。
+BJ_TZ = datetime.timezone(datetime.timedelta(hours=8))
+
+def today_bj():
+    """返回北京时间（UTC+8）的当天日期。"""
+    return datetime.datetime.now(BJ_TZ).date()
+
 CITY_LIST = ["北京","上海","广州","深圳","成都","杭州","武汉","南京","重庆","西安","苏州","天津",
              "长沙","郑州","青岛","东莞","佛山","宁波","无锡","厦门","福州","济南","合肥","昆明",
              "大连","哈尔滨","沈阳","长春","石家庄","太原","南昌","贵阳","南宁","海口","兰州",
@@ -85,12 +94,13 @@ def field_value(fv, meta):
             if isinstance(arr, list):
                 return "".join((x.get("k2") or x.get("k1") or "") for x in arr)
             return str(arr)
-        if t == 4:  # 日期时间戳(毫秒)
+        if t == 4:  # 日期时间戳(毫秒) — Tencent 存的是 UTC，统一按 UTC+8（北京）解析
             k4 = fv.get("k4")
             if k4 is not None:
                 try:
                     ts = int(k4)
-                    dt = datetime.datetime.fromtimestamp(ts/1000) if ts > 1e11 else datetime.datetime.fromtimestamp(ts)
+                    sec = ts / 1000 if ts > 1e11 else ts
+                    dt = datetime.datetime.fromtimestamp(sec, tz=datetime.timezone.utc).astimezone(BJ_TZ)
                     return dt.strftime("%Y-%m-%d")
                 except Exception:
                     pass
@@ -172,13 +182,13 @@ def is_expired(deadline):
     if m:
         try:
             end = datetime.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
-            return end < datetime.date.today()
+            return end < today_bj()
         except Exception:
             pass
     m2 = re.search(r"(\d{1,2})月(\d{1,2})日", d) or re.search(r"^(\d{1,2})[\/\-.](\d{1,2})$", d)
     if m2:
         try:
-            now = datetime.date.today()
+            now = today_bj()
             end2 = datetime.date(now.year, int(m2.group(1)), int(m2.group(2)))
             return end2 < now
         except Exception:
@@ -254,7 +264,7 @@ def run(push=False, dry=False):
     if dry:
         return
     out = {
-        "updated": datetime.date.today().isoformat(),
+        "updated": today_bj().isoformat(),
         "count": len(all_rows),
         "jobs": all_rows,
     }
