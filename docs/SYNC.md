@@ -7,19 +7,37 @@
 
 ## 一、数据源（腾讯文档智能表格）
 
+同步脚本 `scripts/sync_tencent_docs.py` 以多数据源方式合并数据：所有源在脚本顶部 `SOURCES` 中注册，每条记录写入 `ds` 数据源标识，页面「数据源」下拉按 `ds` 分流展示。
+
+### 数据源1：校招信息聚合平台
+
 | 项目 | 值 |
 |---|---|
 | 文档标题 | 27届实习提前批信息汇总 |
 | 文档链接 | https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ |
 | padId | `DTkRMUVhoUWJXZEhJ` |
 | 文档类型 | 智能表格（smartsheet），**私有文档（需登录态，但 opendoc 接口匿名可读）** |
+| ds 标识 | `校招信息聚合平台` |
 
-### 核心子表（sheet）
+核心子表（sheet）：
 
 | sheetId | 名称 | 规模 |
 |---|---|---|
 | `tTNjGc` | 27届内推汇总 | ~100 条 |
 | `tvVDZj` | 实习提前批每日更新 | ~1640 条（每日增长） |
+
+### 数据源2：27届秋招内推（优先投）
+
+| 项目 | 值 |
+|---|---|
+| 文档标题 | 27届秋招含提前批内推-日更（优先投） |
+| 文档链接 | https://docs.qq.com/smartsheet/DTEhaVEpHaUJzTGRh |
+| padId | `DTEhaVEpHaUJzTGRh` |
+| 文档类型 | 智能表格，内推渠道（列结构与数据源1不同） |
+| ds 标识 | `27届秋招内推（优先投）` |
+| 子表 | `ttTHLZ`「秋招提前批内推（日更）」 ~300 行（日更） |
+
+> 数据源2 字段映射见「三、字段映射 · 数据源2（内推优先投表）」。
 
 ---
 
@@ -29,10 +47,10 @@
 
 ```
 GET https://docs.qq.com/dop-api/opendoc
-    ?id=DTkRMUVhoUWJXZEhJ&subId=<sheetId>&startrow=0&endrow=N
+    ?id=<padId>&subId=<sheetId>&startrow=0&endrow=N
     &noEscape=1&enableSmartsheetSplit=1&supportOptimizedVer=4
     &chunkCellSize=15000&normal=1&outformat=1&wb=1&nowb=0&callback=x
-Header: Referer: https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ
+Header: Referer: https://docs.qq.com/smartsheet/<padId>（各数据源各自的 padId/Referer，见脚本 SOURCES 配置）
 ```
 
 返回 JSONP → `clientVars.collab_client_vars.initialAttributedText.text[0].smartsheet`
@@ -57,11 +75,28 @@ Header: Referer: https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ
 | 投递链接or推文 / 投递链接 | `u` | 链接（仅保留 `http(s)://` 开头） |
 | 批次 | `w` | 招聘批次 |
 | 官方公告 | `a` | 企业官方公告链接 |
-| （固定） | `s` | 来源渠道，固定 `"校招信息聚合平台"` |
+| （固定） | `s` | 来源渠道，默认表固定 `"校招信息聚合平台"` |
 | （固定） | `t` | 分类，`ind==互联网科技?"互联网":"其他"` |
-| （固定） | `ds` | 数据源，固定 `"校招信息聚合平台"`；预留字段，后续接入其他表格岗位数据时写对应来源（页面端兼容：记录缺失 `ds` 时自动补默认值） |
+| （按数据源） | `ds` | 数据源标识，每条记录写入所在数据源的 `ds`（默认表为 `"校招信息聚合平台"`）；页面端兼容：记录缺失 `ds` 时自动补默认值 |
 
 > 注：`e`（学历）字段已下线——页面不再展示、筛选和导出该字段；`jobs.json` 中如仍带有 `e` 会被忽略。
+
+### 数据源2（内推优先投表）字段映射
+
+| 腾讯文档列名 | jobs.json 键 | 说明 |
+|---|---|---|
+| 企业名称 | `c` | 公司名，自动清理行尾「(9.1开启）/（8.17新增内推）/（9.1更新）（8.25开启）」等维护注释 |
+| 招聘岗位 | `p` | 职位 / 方向（截断 80 字） |
+| 工作地点 | `l` | 从文本提取城市（命中 CITY_LIST，最多 4 个） |
+| 内推类型 | `w` | 批次，如「27届正式批 / 27届提前批」 |
+| 所在行业 | `ind` | 行业原值（如「科技/AI」「新能源/储能/电池」） |
+| （跳转之后复制到浏览器打开）内推链接/官网 | `u` | 投递链接（仅保留 `http(s)://` 开头） |
+| （无该列） | `d` | 空——该表不设截止日期，不参与过期过滤 |
+| （无该列） | `ut` | 同步当天日期——该表无更新日期列，便于按更新时间排序 / 最近筛选 |
+| 固定 | `s` / `t` / `a` | `s` 与 `ds` 同名；`t="其他"`；`a` 为空 |
+| （固定） | `ds` | `27届秋招内推（优先投）` |
+
+**去重规则**：在单个数据源内去重（键 `公司+岗位+地点`，同源多子表合并）；**跨源不去重**——同一岗位若两个表都有会并存，页面「数据源」下拉可单独查看任一路径。
 
 **jobs.json 结构**：
 ```json
@@ -85,7 +120,14 @@ python scripts/sync_tencent_docs.py
 python scripts/sync_tencent_docs.py --push
 ```
 
-脚本自动完成：拉两表 → 字段映射 → 去重（公司+职位+地点）→ 过期过滤 → 生成 `jobs.json` →（可选）推送。
+脚本自动完成：遍历 `SOURCES` 中所有数据源 → 按各自字段映射函数转换 → 源内去重（公司+职位+地点）→ 过期过滤 → 合并生成 `jobs.json` →（可选）推送。任一数据源的子表拉取失败都会中止并**不覆盖** `jobs.json`。
+
+### 接入新表格数据源
+
+1. 脚本顶部 `SOURCES` 追加一项（`name/pad/ref/ds/sheets`）；
+2. 参照 `to_row`（标准列名表）或 `to_row_intern`（自定义列名表）实现字段映射函数，并注册到 `_MAPPERS`；
+3. `python scripts/sync_tencent_docs.py --dry` 预览统计；
+4. 前端 `index.html` 的「数据源」下拉（`dsFilter`）追加同名 option 后即可按数据源筛选。
 
 ---
 

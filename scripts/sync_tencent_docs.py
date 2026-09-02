@@ -1,42 +1,73 @@
 # -*- coding: utf-8 -*-
 """
-职得 · 腾讯文档智能表格 → jobs.json 同步脚本
-=================================================
+职得 · 腾讯文档智能表格（多数据源）→ jobs.json 同步脚本
+=========================================================
 数据链路（已验证，2026-08-04 完成对接）：
-  腾讯文档智能表格「27届实习提前批信息汇总」
+  数据源1「校招信息聚合平台」—— 文档「27届实习提前批信息汇总」
     https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ
     └─ 核心两个子表(sheet)：
         tTNjGc 「27届内推汇总」      (~100 条)
         tvVDZj 「实习提前批每日更新」 (~1600 条)
 
+  数据源2「27届秋招内推（优先投）」—— 文档「27届秋招含提前批内推-日更（优先投）」
+    https://docs.qq.com/smartsheet/DTEhaVEpHaUJzTGRh
+    └─ ttTHLZ 「秋招提前批内推（日更）」 (~300 条)
+      字段与数据源1不同（企业名称/招聘岗位/工作地点/内推类型/所在行业/内推链接…），
+      由独立映射函数 to_row_intern() 清洗转换。
+
 读取通道（破解 opendoc 接口，无需登录/无需代理）：
-  GET https://docs.qq.com/dop-api/opendoc?id=DTkRMUVhoUWJXZEhJ&subId=<sheetId>&startrow=0&endrow=N
+  GET https://docs.qq.com/dop-api/opendoc?id=<padId>&subId=<sheetId>&startrow=0&endrow=N
   └─ 返回 JSONP → clientVars.collab_client_vars.initialAttributedText.text[0].smartsheet
         └─ base64 → zlib raw deflate 解压 → JSON（rows[0]=[meta,data]）
               └─ meta.c.k3.k3 字段定义 / data.c.k2.k1 记录值
 
 输出：仓库根目录 jobs.json  ——  GitHub Pages(wlunan.github.io/jobworthy/jobs.json)
-      以 Access-Control-Allow-Origin:* 提供，页面(含本地双击 HTML)自动跨域读取最新数据。
+      以 Access-Control-Allow-Origin:* 提供，页面自动跨域读取最新数据；
+      每条记录带 ds（数据源标识），前端「数据源」筛选下拉据此分流展示。
 
 用法：
   python scripts/sync_tencent_docs.py            # 仅生成本地 jobs.json（不推送）
   python scripts/sync_tencent_docs.py --push     # 生成并提交 + push 到 GitHub main
   python scripts/sync_tencent_docs.py --dry      # 仅打印统计，不写文件
+
+扩展新表格数据源：在 SOURCES 中追加一项（pad/子表/字段映射函数/ds），
+  并实现对应 mapper（参考 to_row 与 to_row_intern 两种字段形态）。
 """
 
 import sys, os, re, json, base64, zlib, urllib.request, urllib.parse, subprocess, datetime
 
-# ============ 配置 ============
-TD_PAD_ID = "DTkRMUVhoUWJXZEhJ"
-TD_REF    = "https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ"
-UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
-
-# (子表ID, 名称, 拉取条数上限)
-SHEETS = [
-    ("tTNjGc", "27届内推汇总", 200),
-    ("tvVDZj", "实习提前批每日更新", 2000),
+# ============ 数据源定义 ============
+# 字段含义：
+#   name   —— 来源文档名（日志用）
+#   pad    —— 文档 padId / ref —— Referer
+#   ds     —— 数据源标识（写入每条记录，前端 dsFilter 下拉按此分流）
+#   sheets —— [(子表ID, 名称, 拉取条数上限), ...]
+#   mapper —— 字段映射函数 key（"default"=标准列名表；"intern"=内推优先投表）
+SOURCES = [
+    {
+        "name": "27届实习提前批信息汇总",
+        "pad": "DTkRMUVhoUWJXZEhJ",
+        "ref": "https://docs.qq.com/smartsheet/DTkRMUVhoUWJXZEhJ",
+        "ds": "校招信息聚合平台",
+        "sheets": [
+            ("tTNjGc", "27届内推汇总", 200),
+            ("tvVDZj", "实习提前批每日更新", 2000),
+        ],
+        "mapper": "default",
+    },
+    {
+        "name": "27届秋招含提前批内推-日更（优先投）",
+        "pad": "DTEhaVEpHaUJzTGRh",
+        "ref": "https://docs.qq.com/smartsheet/DTEhaVEpHaUJzTGRh",
+        "ds": "27届秋招内推（优先投）",
+        "sheets": [
+            ("ttTHLZ", "秋招提前批内推（日更）", 600),
+        ],
+        "mapper": "intern",
+    },
 ]
 PAGE_SIZE = 300
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
 
 # ============ 时区 ============
 # Tencent 时间戳按 UTC 存储；统一按北京时间（UTC+8）解析/对比，
@@ -53,17 +84,17 @@ CITY_LIST = ["北京","上海","广州","深圳","成都","杭州","武汉","南
              "银川","西宁","呼和浩特","乌鲁木齐","拉萨"]
 
 # ============ 网络 ============
-def fetch_sheet_raw(sheet_id, rows):
+def fetch_sheet_raw(pad_id, sheet_id, rows, ref):
     """请求 opendoc 接口，返回解压后的 JSON 字符串（腾讯文档表格数据）。"""
     params = {
         "u":"", "noEscape":"1", "enableSmartsheetSplit":"1", "supportOptimizedVer":"4",
         "chunkCellSize":"15000", "normal":"1", "outformat":"1", "wb":"1", "nowb":"0",
-        "callback":"x", "xsrf":"", "id":TD_PAD_ID, "subId":sheet_id,
+        "callback":"x", "xsrf":"", "id":pad_id, "subId":sheet_id,
         "startrow":"0", "endrow":str(rows),
     }
     url = "https://docs.qq.com/dop-api/opendoc?" + urllib.parse.urlencode(params)
     req = urllib.request.Request(url, headers={
-        "User-Agent": UA, "Referer": TD_REF, "Accept": "*/*",
+        "User-Agent": UA, "Referer": ref, "Accept": "*/*",
     })
     with urllib.request.urlopen(req, timeout=40) as resp:
         text = resp.read().decode("utf-8", "ignore")
@@ -221,43 +252,98 @@ def to_row(r):
         "ind": ind, "ut": updated_at, "a": clean_announcement, "u": clean_url,
     }
 
+# ============ 数据源2：27届秋招内推（优先投）字段映射 ============
+# 该表是“内推优先投”渠道，列结构与数据源1不同：
+#   企业名称→c   招聘岗位→p   工作地点→l   内推类型→w(批次)   所在行业→ind   内推链接→u
+# 无截止/公告/官方更新日期列；公司名常带“(9.1开启）/（8.17新增内推）/（9.1更新）”等维护注释。
+# 企业名称里也混有“阿里系-阿里云(8.5开启）仅可内推阿里云”“科大讯飞「星火X计划」…”等描述文案，
+# 这类中间括号注释与项目文案尽量保留原样（避免误删公司真名），仅清理行尾的日期类注释。
+_company_suffix_re = re.compile(
+    r"\s*[\(（][^()（）]*?(?:\d{1,2}[\.／/年]?\d{1,2}日?月?|新增|开启|更新|内推|投递)[^()（）]*?[\)）]\s*$"
+)
+
+def clean_company_name(name):
+    """清理公司名行尾维护注释：海能达(9.1更新）（8.25开启）→海能达、京东(8.3开启)→京东。"""
+    if not name:
+        return name
+    cur = name
+    while True:
+        nxt = _company_suffix_re.sub("", cur).strip()
+        if nxt == cur:
+            break
+        cur = nxt
+    return cur or name
+
+def to_row_intern(r):
+    c_raw = (r.get("企业名称") or "").strip()
+    p = (r.get("招聘岗位") or "").strip()[:80]
+    if not c_raw and not p:
+        return None
+    c = clean_company_name(c_raw)
+    url = (r.get("（跳转之后复制到浏览器打开）内推链接/官网") or "").strip()
+    clean_url = url.split()[0] if (url and re.match(r"^https?://", url)) else ""
+    loc = extract_location(r.get("工作地点") or "")
+    batch = (r.get("内推类型") or "").strip()
+    ind = (r.get("所在行业") or "").strip()
+    # 该表无“更新日期”列：ut 记同步当天，便于按更新时间排序/最近筛选
+    title = p if p else (batch or "内推岗位")
+    return {
+        "c": c, "p": title, "l": loc, "e": "",
+        "w": batch,
+        "d": "",
+        "s": "27届秋招内推（优先投）",
+        "t": "其他",
+        "ind": ind, "ut": today_bj().isoformat(), "a": "", "u": clean_url,
+    }
+
 # ============ 主流程 ============
+_MAPPERS = {"default": to_row, "intern": to_row_intern}
+
 def run(push=False, dry=False):
     all_rows = []
-    seen = set()
-    for sheet_id, name, limit in SHEETS:
-        sheet_ok = False
-        print(f"[拉取] {name} ({sheet_id}) ...", end=" ", flush=True)
-        for off in range(0, limit, PAGE_SIZE):
-            try:
-                js = fetch_sheet_raw(sheet_id, off + PAGE_SIZE)
-                page = parse_sheet(js)
-            except Exception as e:
-                print(f"页 {off} 失败: {e}")
-                break
-            if not page:
-                break
-            sheet_ok = True
-            added = 0
-            for r in page:
-                row = to_row(r)
-                if not row:
-                    continue
-                key = row["c"] + "|" + row["p"] + "|" + row["l"]
-                if key in seen:
-                    continue
-                seen.add(key)
-                all_rows.append(row)
-                added += 1
-            print(f"页{off}:{len(page)}条→净增{added}", end="  ", flush=True)
-            if added == 0:  # opendoc 每次从 0 返回，无新增即到底
-                break
-        print()  # 换行
-        if not sheet_ok:
-            raise RuntimeError(f"子表拉取失败或无数据，停止覆盖 jobs.json: {name} ({sheet_id})")
-    print(f"\n[汇总] 两表合并后共 {len(all_rows)} 条有效招聘信息")
-    # 行业分布
+    for src in SOURCES:
+        mapper = _MAPPERS[src["mapper"]]
+        seen = set()  # 去重在单个数据源内进行：同源两子表合并去重；跨源保留（渠道不同，页面可按 ds 分流查看）
+        print(f"\n[数据源] {src['name']}   (ds={src['ds']})")
+        for sheet_id, name, limit in src["sheets"]:
+            sheet_ok = False
+            print(f"[拉取] {name} ({sheet_id}) ...", end=" ", flush=True)
+            for off in range(0, limit, PAGE_SIZE):
+                try:
+                    js = fetch_sheet_raw(src["pad"], sheet_id, off + PAGE_SIZE, src["ref"])
+                    page = parse_sheet(js)
+                except Exception as e:
+                    print(f"页 {off} 失败: {e}")
+                    break
+                if not page:
+                    break
+                sheet_ok = True
+                added = 0
+                for r in page:
+                    row = mapper(r)
+                    if not row:
+                        continue
+                    row["ds"] = src["ds"]
+                    key = row["c"] + "|" + row["p"] + "|" + row["l"]
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    all_rows.append(row)
+                    added += 1
+                print(f"页{off}:{len(page)}条→净增{added}", end="  ", flush=True)
+                if added == 0:  # opendoc 每次从 0 返回，无新增即到底
+                    break
+            print()  # 换行
+            if not sheet_ok:
+                raise RuntimeError(f"子表拉取失败或无数据，停止覆盖 jobs.json: {name} ({sheet_id}) @ {src['name']}")
+        print(f"[本源净增] {src['ds']}: {len(seen)} 条")
+    print(f"\n[汇总] 各数据源合并后共 {len(all_rows)} 条有效招聘信息")
+    # 数据源分布
     from collections import Counter
+    ds_cnt = Counter(x.get("ds") or "" for x in all_rows)
+    for k, v in ds_cnt.items():
+        print(f"   {k}: {v} 条")
+    # 行业分布（整体）
     dist = Counter(x["ind"] for x in all_rows)
     for k, v in dist.most_common():
         print(f"   {k}: {v}")
