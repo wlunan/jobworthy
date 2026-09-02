@@ -76,3 +76,10 @@ code{background:#e7e9f5;color:#5b3fd6;padding:1px 6px;border-radius:4px;font-siz
 .copy-btn:hover{background:#475569}
 .close-x{position:absolute;top:14px;right:18px;background:0 0;border:0;font-size:22px;color:#cbd2dc;cursor:pointer;line-height:1}
 .close-x:hover{color:#64748b}
+.site-footer{margin:8px 24px 28px;padding:18px 20px;background:#fff;border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 8px 24px rgba(16,24,40,.06);display:flex;flex-direction:column;align-items:center;gap:8px;color:#64748b;font-size:13px}
+.site-footer-stats{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+.site-footer-stats .stat-item{display:inline-flex;align-items:center;gap:5px;font-weight:500}
+.site-footer-stats .stat-item i{width:14px;height:14px;color:#94a3b8}
+.site-footer-stats .stat-item span{min-width:1em;text-align:center;color:#5b6ef5;font-weight:600}
+.site-footer-stats .stat-divider{color:#cbd2dc}
+@media (max-width:640px){.site-footer{margin:8px 16px 20px;padding:14px 16px}.site-footer-stats{font-size:12px}}
